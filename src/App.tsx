@@ -1,14 +1,18 @@
 import './App.css';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import Nav from './components/Nav';
 import { Outlet } from 'react-router-dom';
 
-function App(): ReactElement {
+import AuthProvider from './components/AuthProvider';
+
+function App(): React.ReactElement {
   return (
-    <div className="App">
+    <AuthProvider>
       <Nav></Nav>
-      <Outlet />
-    </div>
+      <section className="section p-5 ">
+        <Outlet />
+      </section>
+    </AuthProvider>
   );
 }
 

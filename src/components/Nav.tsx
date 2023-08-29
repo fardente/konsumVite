@@ -1,61 +1,58 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-// // import useActive from '../hooks/useActive';
 import IonIcon from '@reacticons/ionicons';
+
 export default function Nav() {
-  //   const [active, onClickActive] = useActive();
+  const [active, setActive] = React.useState('');
+
+  function onToggleActive() {
+    return setActive(active => (active ? '' : 'is-active'));
+  }
 
   return (
     <div className="navbar has-shadow">
       <div className="navbar-brand">
         <div className="navbar-item">
           <span className="icon mx-3 has-background-warning-light has-text-danger-dark">
-            <IonIcon name="pizza-sharp" className="is-large" />
+            <IonIcon name="pizza-sharp" className="is-large"></IonIcon>
           </span>
           {'   '}Recipe Manager
         </div>
-        {/* <input
-                    className="navbar-item navbar-search is-active"
-                    type="text"
-                    name="searchTerm"
-                    placeholder="search..."
-                    // value={searchTerm}
-                    // onChange={(event) => onSearch(event)}
-                ></input> */}
+
         <div
-        //   className={`navbar-burger ${active}`}
-        //   onClick={() => onClickActive(!active)}
+          className={`navbar-burger ${active}`}
+          onClick={() => onToggleActive()}
         >
           <span></span>
           <span></span>
           <span></span>
         </div>
       </div>
-      <menu role="menu" id="nav-links">
+      <div className={`navbar-menu ${active}`} id="nav-links">
         <div className="navbar-end">
           <Link
-            // onClick={() => onClickActive(false)}
+            onClick={() => onToggleActive()}
             className="navbar-item has-text-centered"
             to="/"
           >
             Shopping List
           </Link>
           <Link
-            // onClick={() => onClickActive(false)}
+            onClick={() => onToggleActive()}
             className="navbar-item has-text-centered"
             to="/recipes"
           >
             Recipes
           </Link>
           <Link
-            // onClick={() => onClickActive(false)}
+            onClick={() => onToggleActive()}
             className="navbar-item has-text-centered"
             to="/ingredients"
           >
             Ingredients
           </Link>
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

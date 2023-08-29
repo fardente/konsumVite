@@ -4,8 +4,10 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App';
 import ErrorPage from './components/ErrorPage';
-import RecipeList from './components/RecipeList';
-import Shopping from './components/Shopping';
+import RecipeDetails from './components/Recipes/RecipeDetails';
+import RecipeForm from './components/Recipes/RecipeForm';
+import RecipeList from './components/Recipes/RecipeList';
+import Shopping from './components/ShoppingList/Shopping';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -23,8 +25,12 @@ const router = createBrowserRouter([
         element: <RecipeList />,
       },
       {
-        path: '/ingredients',
-        element: <RecipeList />,
+        path: '/recipes/add',
+        element: <RecipeForm />,
+      },
+      {
+        path: '/recipes/:id',
+        element: <RecipeDetails />,
       },
     ],
   },
