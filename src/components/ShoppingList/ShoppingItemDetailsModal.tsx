@@ -1,4 +1,5 @@
 import React from 'react';
+import IonIcon from '@reacticons/ionicons';
 import { IShoppingListItem } from '../../domain/api';
 import useUpdateState from './useUpdateState';
 
@@ -72,7 +73,10 @@ export default function ShoppingItemDetailsModalView({
             className="tag has-text-grey-light is-rounded"
             onClick={() => onAddTag(item.id, tag)}
           >
-            {tag}
+            {tag}{' '}
+            <span className="icon is-large ml-0">
+              <IonIcon name="add-circle" size="large"></IonIcon>
+            </span>
           </span>
         ))}
       </div>
