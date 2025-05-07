@@ -1,0 +1,157 @@
+import IonIcon from '@reacticons/ionicons';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import useAddRecipeMutation from './Hooks/useAddRecipeMutation';
+
+function submitRecipe(recipe: HTMLFormElement) {
+  const ingredients: string[] = [];
+  const formData = new FormData(recipe);
+  const r: any = {};
+  console.log(
+    'map',
+    [...formData.entries()].map(e => {
+      if (typeof e[1] === 'string' && e[0].startsWith('ingredient')) {
+        ingredients.push(e[1]);
+        return;
+      }
+      r[e[0]] = e[1];
+    })
+  );
+  r.ingredients = ingredients;
+  return useAddRecipeMutation().mutate(r);
+}
+
+export default function RecipeForm() {
+  const [ingredients, setIngredients] = useState([{ ingredientName: '' }]);
+
+  const navigate = useNavigate();
+
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    submitRecipe(event.currentTarget as HTMLFormElement);
+    navigate('/recipes');
+  }
+
+  function onAdd(event: React.FormEvent) {
+    event.preventDefault();
+    setIngredients([...ingredients, { ingredientName: '' }]);
+  }
+
+  return (
+    <div className="container has-text-centered mb-6">
+      <h2 className="title">Add a Recipe</h2>
+      <div className="columns is-centered">
+        <div className="column  is-half">
+          <form
+            action="/"
+            method="POST"
+            encType="multipart/form-data"
+            onSubmit={event => onSubmit(event)}
+          >
+            <div className="field">
+              <div className="control">
+                <input
+                  className="input"
+                  type="text"
+                  name="recipe_name"
+                  placeholder="Recipe Name"
+                  required
+                ></input>
+              </div>
+            </div>
+            {/* <IngredientsForm
+              ingredients={ingredients}
+              setIngredients={setIngredients}
+              editMode={edit}
+            /> */}
+            <div className="field">
+              {ingredients.map((item, index) => (
+                <div className="field has-addons" key={index.toString()}>
+                  <div className="control">
+                    <input
+                      className="input"
+                      name={'ingredient' + index}
+                      type="text"
+                      placeholder="New ingredient..."
+                    ></input>
+                    {/* {showResults && renderResults(index)} */}
+                  </div>
+                  <div className="control">
+                    <a
+                      // name={index}
+                      // onClick={event => onRemove(event, index)}
+                      className="button is-danger is-light"
+                    >
+                      {' '}
+                      <span className="icon is-small is-left">
+                        <IonIcon name="close-outline"></IonIcon>
+                      </span>
+                    </a>
+                  </div>
+                </div>
+              ))}
+              <div className="control">
+                <button
+                  className="button is-success is-light is-outlined"
+                  name="addIngredientBtn"
+                  onClick={event => onAdd(event)}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <div className="field">
+              <div className="control">
+                <textarea
+                  className="textarea is-info"
+                  name="recipe_preparation"
+                  placeholder="Add preparation steps here..."
+                ></textarea>
+              </div>
+            </div>
+
+            <div className="field">
+              <label className="label">Add an image:</label>
+              <div className="file is-info is-small">
+                <label className="file-label">
+                  <input
+                    className="file-input"
+                    type="file"
+                    accept="image/*"
+                    name="file"
+                    id="file"
+                    // onChange={onFileSelect}
+                  ></input>
+                  <span className="file-cta">
+                    <span className="file-icon">
+                      <IonIcon name="cloud-upload-outline"></IonIcon>
+                    </span>
+                    <span className="file-label">Choose a file…</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="field is-grouped is-grouped-right">
+              <div className="control">
+                <button
+                  // className={`button is-success ${loading ? 'is-loading' : ''}`}
+                  type="submit"
+                >
+                  Save
+                </button>
+              </div>
+              <div className="control">
+                <Link className="button" to="/recipes">
+                  Cancel
+                </Link>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      {/* <StatusMessage message={errorMessage} /> */}
+    </div>
+  );
+}

@@ -1,7 +1,8 @@
 import React from 'react';
 import IonIcon from '@reacticons/ionicons';
 import { IShoppingListItem } from '../../domain/api';
-import useUpdateState from './useUpdateState';
+import { useAddTagMutation } from './Hooks/useAddTagMutation';
+import { useRemoveTagMutation } from './Hooks/useRemoveTagMutation';
 
 export default function ShoppingItemDetailsModalView({
   item,
@@ -12,7 +13,8 @@ export default function ShoppingItemDetailsModalView({
 }) {
   const [currentInputValue, setCurrentInputValue] = React.useState('');
 
-  const { addTagToItem, removeTagFromItem } = useUpdateState();
+  const { mutate: addTag } = useAddTagMutation();
+  const { mutate: removeTag } = useRemoveTagMutation();
 
   const fixedTags = [
     'baumarkt',
@@ -35,10 +37,13 @@ export default function ShoppingItemDetailsModalView({
     }
   }
 
-  function onAddTag(itemID: string, newTag: string) {
-    console.log('SIDetailsModal: onAddTag ', itemID, newTag);
-    addTagToItem(itemID, newTag);
+  function onAddTag(itemId: string, newTag: string) {
+    addTag({ itemId, tag: newTag });
     setCurrentInputValue('');
+  }
+
+  function onRemoveTag(itemId: string, tag: string) {
+    removeTag({ itemId, tag });
   }
 
   return (
@@ -47,24 +52,23 @@ export default function ShoppingItemDetailsModalView({
       <div className="tags are-large is-align-items-flex-start">
         {item.tags.length === 0 ? 'No Tags' : ''}
         {item.tags.map(tag => (
-          <span key={`${tag}`} className="tag is-warning is-rounded">
+          <span
+            key={`${tag}`}
+            className="tag is-warning is-rounded"
+            onClick={() => onRemoveTag(item.id, tag)}
+          >
             <>
               {tag}
-              <button
-                className="delete is-large"
-                onClick={() => removeTagFromItem(item.id, tag)}
-              ></button>
+              <button className="delete is-large"></button>
             </>
           </span>
         ))}
       </div>
       {unusedTags.length > 0 ? <hr /> : ''}
-      {unusedTags.length > 0 ? (
+      {unusedTags.length > 0 && (
         <>
           <h5 className="title is-5 is-underlined">Available Tags</h5>
         </>
-      ) : (
-        ''
       )}
       <div className="tags are-large is-align-items-flex-start">
         {unusedTags.map(tag => (
@@ -90,7 +94,6 @@ export default function ShoppingItemDetailsModalView({
             value={currentInputValue}
             onKeyDown={checkKey}
             onChange={event => setCurrentInputValue(event.target.value)}
-            autoFocus
           />
         </div>
         <div className="control">

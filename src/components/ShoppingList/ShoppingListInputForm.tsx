@@ -1,6 +1,7 @@
 import IonIcon from '@reacticons/ionicons';
 import React from 'react';
-import useUpdateState from './useUpdateState';
+import useUpdateState from '../Recipes/Hooks/useAddRecipeMutation';
+import { useAddItemMutation } from './Hooks/useAddItemMutation';
 
 export default function ShoppingListInputForm({
   currentInputValue,
@@ -9,12 +10,12 @@ export default function ShoppingListInputForm({
   currentInputValue: string;
   setCurrentInputValue: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const { submitItem } = useUpdateState();
+  const { mutate: submitItem } = useAddItemMutation();
 
   function checkKey(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key == 'Enter') {
       event.preventDefault();
-      submitItem(currentInputValue);
+      submitItem({ name: currentInputValue, tags: [] });
       setCurrentInputValue('');
     }
   }
@@ -44,7 +45,7 @@ export default function ShoppingListInputForm({
         ></input>
         <button
           onClick={() => {
-            submitItem(currentInputValue);
+            submitItem({ name: currentInputValue, tags: [] });
             setCurrentInputValue('');
           }}
           data-testid="addShoppingItemButton"

@@ -1,0 +1,48 @@
+import { Link } from 'react-router-dom';
+import { IRecipe } from '../../domain/api';
+
+export default function RecipeListItem({
+  id,
+  recipeName,
+  recipePreparation,
+  imageUrl,
+}: IRecipe) {
+  return (
+    <div className="column is-3">
+      <div className="card">
+        <div className="card-image">
+          <figure className="image">
+            <Link to={'/recipes/' + id}>
+              {' '}
+              <img
+                src={
+                  imageUrl ||
+                  'https://bulma.io/images/placeholders/1280x960.png'
+                }
+                alt={recipeName || 'Placeholder image'}
+              />
+            </Link>{' '}
+          </figure>
+        </div>
+
+        <div className="card-content">
+          <div className="media">
+            {/* <div className="media-left"></div> */}
+            <div className="media-content">
+              <p className="title is-4">
+                {' '}
+                <Link to={'/recipes/' + id}>{recipeName}</Link>
+              </p>
+              {/* <p className="subtitle is-6">@johnsmith</p> */}
+            </div>
+          </div>
+          <div className="content">
+            {recipePreparation.slice(0, 75)}...
+            <br />
+            {/* <time dateTime="2016-1-1">11:09 PM - 1 Jan 2016</time> */}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

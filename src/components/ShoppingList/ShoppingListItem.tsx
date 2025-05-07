@@ -1,8 +1,9 @@
-import useModal from '../useModal';
 import IonIcon from '@reacticons/ionicons';
+import useModal from '../useModal';
 
-import useUpdateState from './useUpdateState';
 import { IShoppingListItem } from '../../domain/api';
+import { useCheckItemMutation } from './Hooks/useCheckItemMutation';
+import { useDeleteItemMutation } from './Hooks/useDeleteItemMutation';
 import ShoppingItemDetailsModalView from './ShoppingItemDetailsModal';
 
 export default function ShoppingListItem({
@@ -15,14 +16,16 @@ export default function ShoppingListItem({
   const { toggleModal: toggleItemDetailsModal, RenderModal: ItemDetailsModal } =
     useModal();
 
-  const { checkItem, deleteItem } = useUpdateState();
+  const { mutate: deleteItem } = useDeleteItemMutation();
+  const { mutate: checkItem } = useCheckItemMutation();
 
   const checked = item.checked;
 
   return (
     <div
-      className={`columns is-mobile shopping-item-wrapper ${checked ? 'checked' : ''
-        }`}
+      className={`columns is-mobile shopping-item-wrapper ${
+        checked ? 'checked' : ''
+      }`}
     >
       <div className="column is-flex-grow-0 shopping-item-button-div">
         <button
@@ -54,9 +57,10 @@ export default function ShoppingListItem({
       </div>
       <div className="column is-flex-grow-0 shopping-item-button-div">
         <button
-          className={`button ${checked ? 'is-success' : 'is-outlined is-success is-light'
-            }`}
-          onClick={() => checkItem(item.id, !item.checked)}
+          className={`button ${
+            checked ? 'is-success' : 'is-outlined is-success is-light'
+          }`}
+          onClick={() => checkItem({ itemId: item.id, checked: !item.checked })}
         >
           <span className="icon is-small">
             {checked ? (

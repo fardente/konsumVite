@@ -1,4 +1,4 @@
-import { IShoppingListItem } from '../../domain/api';
+import { IShoppingListItem } from '../../../domain/api';
 
 export default function useFilter(
   setFilter: React.Dispatch<React.SetStateAction<string[]>>

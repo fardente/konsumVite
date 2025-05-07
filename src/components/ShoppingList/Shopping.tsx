@@ -1,11 +1,11 @@
 import React from 'react';
 import { IShoppingListItem } from '../../domain/api';
 import FilterView from './FilterView';
-import useFilter from './useFilter';
+import useFilter from './Hooks/useFilter';
 import useModal from '../useModal';
 import ShoppingListInputForm from './ShoppingListInputForm';
 import ShoppingListItem from './ShoppingListItem';
-import { useShoppingItemsQuery } from './useFetchItems';
+import { useShoppingItemsQuery } from './Hooks/useFetchItems';
 
 export default function Shopping() {
   const { isLoading, isError, data } = useShoppingItemsQuery();

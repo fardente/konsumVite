@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchShoppingItems } from '../../domain/firestoreApi';
+import { fetchShoppingItems } from '../../../domain/firestoreApi';
 
 export const useShoppingItemsQuery = () =>
   useQuery({
