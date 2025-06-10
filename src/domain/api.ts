@@ -79,7 +79,6 @@ export function deleteShoppingItem(itemID: string) {
 }
 
 export function addTagToShoppingItem(itemID: string, tagName: string) {
-  console.log('addtagtoshopping', tagName);
   return axios.post('http://localhost:3000/api/tags', {
     tag_name: tagName,
     shopping_item_id: itemID,
@@ -101,22 +100,37 @@ export interface IRecipeDTO {
   ingredients: IIngredient[];
 }
 
+
 export interface IRecipe {
   createdAt: string;
   id: string;
   imageUrl: string;
   recipeName: string;
   recipePreparation: string;
-  ingredients: IIngredient[];
+  ingredients: string[];
+}
+
+export interface IAddRecipeForm {
+  recipeName: string;
+  recipePreparation: string;
+  ingredients: string[];
+  file: File;
+}
+
+export interface IUpdateRecipeForm {
+  recipeName: string;
+  recipePreparation: string;
+  imageUrl: string;
+  ingredients: string[];
 }
 
 export interface IIngredient {
-  created_at: string;
+  createdAt: string;
   exists: boolean;
   id: number;
-  item_id: string;
-  item_name: string;
-  recipe_id: string;
+  itemId: string;
+  itemName: string;
+  recipeId: string;
 }
 
 function mapRecipeDTO(recipe: IRecipeDTO): IRecipe {
@@ -138,17 +152,15 @@ export async function fetchRecipes(): Promise<IRecipe[]> {
   return data.map(recipe => mapRecipeDTO(recipe));
 }
 
-export async function fetchRecipe(id: string): Promise<IRecipe> {
-  const { data }: { data: IRecipeDTO[] } = await axios.get(
-    'http://localhost:3000/api/recipes/' + id
-  );
-  console.log('got data: ', data);
-  if (data.length < 1) throw new Error();
-  return mapRecipeDTO(data[0]);
-}
+// export async function fetchRecipe(id: string): Promise<IRecipe> {
+//   const { data }: { data: IRecipeDTO[] } = await axios.get(
+//     'http://localhost:3000/api/recipes/' + id
+//   );
+//   if (data.length < 1) throw new Error();
+//   return mapRecipeDTO(data[0]);
+// }
 
 export async function addRecipe(formData: EventTarget) {
-  console.log('add recipe form:', formData);
   const response = await axios.post(
     'http://localhost:3000/api/recipes/add',
     formData
@@ -165,11 +177,9 @@ export async function updateRecipe(formData: EventTarget) {
 }
 
 export async function addIngredientsToShoppingList(ingredientIds: EventTarget) {
-  console.log('addint items to list: ', ingredientIds);
   const response = await axios.post(
     'http://localhost:3000/api/recipes/buy',
     ingredientIds
   );
-  console.log('response', response);
   return response;
 }

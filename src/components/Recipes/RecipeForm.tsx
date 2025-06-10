@@ -3,32 +3,32 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAddRecipeMutation from './Hooks/useAddRecipeMutation';
 
-function submitRecipe(recipe: HTMLFormElement) {
-  const ingredients: string[] = [];
-  const formData = new FormData(recipe);
-  const r: any = {};
-  console.log(
-    'map',
-    [...formData.entries()].map(e => {
-      if (typeof e[1] === 'string' && e[0].startsWith('ingredient')) {
-        ingredients.push(e[1]);
-        return;
-      }
-      r[e[0]] = e[1];
-    })
-  );
-  r.ingredients = ingredients;
-  return useAddRecipeMutation().mutate(r);
-}
-
 export default function RecipeForm() {
   const [ingredients, setIngredients] = useState([{ ingredientName: '' }]);
 
   const navigate = useNavigate();
+  const mutate = useAddRecipeMutation();
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    submitRecipe(event.currentTarget as HTMLFormElement);
+    const ingredients: string[] = [];
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const r: any = {};
+    r.recipeName = formData.get('recipe_name') as string;
+    r.recipePreparation = formData.get('recipe_preparation') as string;
+    r.file = formData.get('file') as File;
+    console.log(
+      'map',
+      [...formData.entries()].map(e => {
+        if (typeof e[1] === 'string' && e[0].startsWith('ingredient')) {
+          ingredients.push(e[1]);
+          return;
+        }
+        r[e[0]] = e[1];
+      })
+    );
+    r.ingredients = ingredients;
+    mutate.mutate(r);
     navigate('/recipes');
   }
 
@@ -64,40 +64,48 @@ export default function RecipeForm() {
               setIngredients={setIngredients}
               editMode={edit}
             /> */}
-            <div className="field">
-              {ingredients.map((item, index) => (
-                <div className="field has-addons" key={index.toString()}>
-                  <div className="control">
-                    <input
-                      className="input"
-                      name={'ingredient' + index}
-                      type="text"
-                      placeholder="New ingredient..."
-                    ></input>
-                    {/* {showResults && renderResults(index)} */}
+            {/* Ingredients */}
+            <div className="box">
+              <h2 className="subtitle has-text-weight-semibold has-text-centered">
+                Ingredients:
+              </h2>
+              <div className="field">
+                {ingredients.map((item, index) => (
+                  <div className="field has-addons" key={index.toString()}>
+                    <div className="control">
+                      <input
+                        className="input"
+                        name={'ingredient' + index}
+                        type="text"
+                        placeholder="New ingredient..."
+                        autoComplete="off"
+                        data-testid={'ingredientInput' + index}
+                      ></input>
+                      {/* {showResults && renderResults(index)} */}
+                    </div>
+                    <div className="control">
+                      <a
+                        // name={index}
+                        // onClick={event => onRemove(event, index)}
+                        className="button is-danger is-light"
+                      >
+                        {' '}
+                        <span className="icon is-small is-left">
+                          <IonIcon name="close-outline"></IonIcon>
+                        </span>
+                      </a>
+                    </div>
                   </div>
-                  <div className="control">
-                    <a
-                      // name={index}
-                      // onClick={event => onRemove(event, index)}
-                      className="button is-danger is-light"
-                    >
-                      {' '}
-                      <span className="icon is-small is-left">
-                        <IonIcon name="close-outline"></IonIcon>
-                      </span>
-                    </a>
-                  </div>
+                ))}
+                <div className="control">
+                  <button
+                    className="button is-success is-light is-outlined"
+                    name="addIngredientBtn"
+                    onClick={event => onAdd(event)}
+                  >
+                    Add
+                  </button>
                 </div>
-              ))}
-              <div className="control">
-                <button
-                  className="button is-success is-light is-outlined"
-                  name="addIngredientBtn"
-                  onClick={event => onAdd(event)}
-                >
-                  Add
-                </button>
               </div>
             </div>
 
@@ -111,7 +119,7 @@ export default function RecipeForm() {
               </div>
             </div>
 
-            <div className="field">
+            <div className="field has-text-left">
               <label className="label">Add an image:</label>
               <div className="file is-info is-small">
                 <label className="file-label">
@@ -136,6 +144,7 @@ export default function RecipeForm() {
             <div className="field is-grouped is-grouped-right">
               <div className="control">
                 <button
+                  className="button is-success"
                   // className={`button is-success ${loading ? 'is-loading' : ''}`}
                   type="submit"
                 >

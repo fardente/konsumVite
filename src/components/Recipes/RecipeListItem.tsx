@@ -15,10 +15,7 @@ export default function RecipeListItem({
             <Link to={'/recipes/' + id}>
               {' '}
               <img
-                src={
-                  imageUrl ||
-                  'https://bulma.io/images/placeholders/1280x960.png'
-                }
+                src={imageUrl || 'https://placehold.co/1280x960'}
                 alt={recipeName || 'Placeholder image'}
               />
             </Link>{' '}

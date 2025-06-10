@@ -31,6 +31,7 @@ export default function ShoppingListItem({
         <button
           className="button is-outlined is-danger is-light"
           onClick={() => deleteItem(item.id)}
+          data-testid={`deleteShoppingItemButton-${item.name}`}
         >
           {' '}
           <span className="icon is-small">
