@@ -1,7 +1,7 @@
-import IonIcon from '@reacticons/ionicons';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAddRecipeMutation from './Hooks/useAddRecipeMutation';
+import { IoCloudOutline, IoCloudUploadOutline } from 'react-icons/io5';
 
 export default function RecipeForm() {
   const [ingredients, setIngredients] = useState([{ ingredientName: '' }]);
@@ -91,7 +91,7 @@ export default function RecipeForm() {
                       >
                         {' '}
                         <span className="icon is-small is-left">
-                          <IonIcon name="close-outline"></IonIcon>
+                          <IoCloudOutline />
                         </span>
                       </a>
                     </div>
@@ -133,7 +133,7 @@ export default function RecipeForm() {
                   ></input>
                   <span className="file-cta">
                     <span className="file-icon">
-                      <IonIcon name="cloud-upload-outline"></IonIcon>
+                      <IoCloudUploadOutline />
                     </span>
                     <span className="file-label">Choose a file…</span>
                   </span>

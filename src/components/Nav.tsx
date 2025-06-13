@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import IonIcon from '@reacticons/ionicons';
+import { IoPizzaSharp } from 'react-icons/io5';
 
 export default function Nav() {
   const [active, setActive] = React.useState('');
@@ -14,7 +14,7 @@ export default function Nav() {
       <div className="navbar-brand">
         <div className="navbar-item">
           <span className="icon mx-3 has-background-warning-light has-text-danger-dark">
-            <IonIcon name="pizza-sharp" className="is-large"></IonIcon>
+            <IoPizzaSharp className="is-large" />
           </span>
           {'   '}Recipe Manager
         </div>

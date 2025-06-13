@@ -1,4 +1,3 @@
-import IonIcon from '@reacticons/ionicons';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IRecipe } from '../../domain/api';
@@ -7,6 +6,13 @@ import { useFetchRecipe } from './Hooks/useFetchRecipe';
 import IngredientsList from './IngredientsList';
 import { useUpdateRecipeImageMutation } from './Hooks/updateRecipeImageMutation';
 import { useDeleteRecipeMutation } from './Hooks/deleteRecipeMutation';
+import {
+  IoCameraOutline,
+  IoCheckmarkCircleOutline,
+  IoCloseCircleOutline,
+  IoCreateOutline,
+  IoTrashOutline,
+} from 'react-icons/io5';
 
 export default function RecipeDetails() {
   const { id } = useParams();
@@ -115,7 +121,7 @@ export default function RecipeDetails() {
                     onChange={event => changeImage(event, recipe.recipeName)}
                   />
                   <span className="icon is-large">
-                    <IonIcon name="camera-outline"></IonIcon>
+                    <IoCameraOutline />
                   </span>
                 </label>
               </div>
@@ -128,7 +134,7 @@ export default function RecipeDetails() {
                 onClick={() => onDeleteRecipe(recipe.recipeName)}
               >
                 <span className="icon is-large">
-                  <IonIcon name="trash-outline"></IonIcon>
+                  <IoTrashOutline />
                 </span>
               </button>
             )}
@@ -138,7 +144,7 @@ export default function RecipeDetails() {
             {editMode && (
               <button type="submit" className="recipe-button">
                 <span className="icon is-large">
-                  <IonIcon name="checkmark-circle-outline"></IonIcon>
+                  <IoCheckmarkCircleOutline />
                 </span>
               </button>
             )}
@@ -151,12 +157,12 @@ export default function RecipeDetails() {
               {editMode ? (
                 /* Cancel Button */
                 <span className="icon is-large">
-                  <IonIcon name="close-circle-outline"></IonIcon>
+                  <IoCloseCircleOutline />
                 </span>
               ) : (
                 /* Edit Button */
                 <span className="icon is-large">
-                  <IonIcon name="create-outline"></IonIcon>
+                  <IoCreateOutline />
                 </span>
               )}
             </button>

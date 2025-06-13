@@ -1,6 +1,6 @@
-import IonIcon from '@reacticons/ionicons';
 import React, { useState } from 'react';
 import SuggestionBox from './SuggestionBox';
+import { IoCloseOutline } from 'react-icons/io5';
 
 export default function UpdateIngredientsForm({
   ingredient_names,
@@ -79,7 +79,7 @@ export default function UpdateIngredientsForm({
               className="button is-danger is-light"
             >
               <span className="icon is-small is-left">
-                <IonIcon name="close-outline"></IonIcon>
+                <IoCloseOutline />
               </span>
             </a>
           </div>

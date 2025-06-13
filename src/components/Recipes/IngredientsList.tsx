@@ -3,7 +3,7 @@ import { useShoppingItemsQuery } from '../ShoppingList/Hooks/useFetchItems';
 import Checkbox from './Checkbox';
 import UpdateIngredientsForm from './IngredientsForm';
 import { useAddIngredientsToShoppingListMutation } from './Hooks/useAddIngredientsToShoppingListMutation';
-import IonIcon from '@reacticons/ionicons';
+import { IoCheckmarkOutline } from 'react-icons/io5';
 
 export default function IngredientsList({
   ingredients,
@@ -84,7 +84,7 @@ export default function IngredientsList({
 
                   {isSuccess ? (
                     <span className="icon is-small">
-                      <IonIcon name="checkmark-outline"></IonIcon>
+                      <IoCheckmarkOutline />
                     </span>
                   ) : (
                     ''

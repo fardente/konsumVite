@@ -1,9 +1,7 @@
-import IonIcon from '@reacticons/ionicons';
 import React from 'react';
-import useUpdateState from '../Recipes/Hooks/useAddRecipeMutation';
 import { useAddItemMutation } from './Hooks/useAddItemMutation';
-import SuggestionBox from '../Recipes/SuggestionBox';
 import { useSuggestionsQuery } from './Hooks/useFetchSuggestions';
+import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
 
 export default function ShoppingListInputForm({
   currentInputValue,
@@ -59,7 +57,7 @@ export default function ShoppingListInputForm({
           className="button is-medium"
         >
           <span className="icon is-large">
-            <IonIcon name="close-outline" className="is-large"></IonIcon>
+            <IoCloseOutline className="is-large" />
           </span>
         </button>
         <input
@@ -80,7 +78,7 @@ export default function ShoppingListInputForm({
           className="button is-medium is-success"
         >
           <span className="icon is-large">
-            <IonIcon name="add-outline" className="is-large"></IonIcon>
+            <IoAddOutline className="is-large" />
           </span>
         </button>
       </div>

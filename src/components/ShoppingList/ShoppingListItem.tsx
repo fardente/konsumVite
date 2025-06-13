@@ -1,10 +1,14 @@
-import IonIcon from '@reacticons/ionicons';
 import useModal from '../useModal';
 
 import { IShoppingListItem } from '../../domain/api';
 import { useCheckItemMutation } from './Hooks/useCheckItemMutation';
 import { useDeleteItemMutation } from './Hooks/useDeleteItemMutation';
 import ShoppingItemDetailsModalView from './ShoppingItemDetailsModal';
+import {
+  IoCheckboxOutline,
+  IoCheckmarkDoneOutline,
+  IoTrashOutline,
+} from 'react-icons/io5';
 
 export default function ShoppingListItem({
   item,
@@ -35,7 +39,7 @@ export default function ShoppingListItem({
         >
           {' '}
           <span className="icon is-small">
-            <IonIcon name="trash-outline"></IonIcon>
+            <IoTrashOutline />
           </span>
         </button>
       </div>
@@ -64,11 +68,7 @@ export default function ShoppingListItem({
           onClick={() => checkItem({ itemId: item.id, checked: !item.checked })}
         >
           <span className="icon is-small">
-            {checked ? (
-              <IonIcon name="checkmark-done-outline"></IonIcon>
-            ) : (
-              <IonIcon name="checkmark-outline"></IonIcon>
-            )}
+            {checked ? <IoCheckmarkDoneOutline /> : <IoCheckboxOutline />}
           </span>
         </button>
       </div>

@@ -1,8 +1,8 @@
 import React from 'react';
-import IonIcon from '@reacticons/ionicons';
 import { IShoppingListItem } from '../../domain/api';
 import { useAddTagMutation } from './Hooks/useAddTagMutation';
 import { useRemoveTagMutation } from './Hooks/useRemoveTagMutation';
+import { IoAddCircle } from 'react-icons/io5';
 
 export default function ShoppingItemDetailsModalView({
   item,
@@ -79,7 +79,7 @@ export default function ShoppingItemDetailsModalView({
           >
             {tag}{' '}
             <span className="icon is-large ml-0">
-              <IonIcon name="add-circle" size="large"></IonIcon>
+              <IoAddCircle size={32}></IoAddCircle>
             </span>
           </span>
         ))}

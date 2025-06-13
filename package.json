@@ -23,7 +23,7 @@
     "test:cleardb": "ts-node tests/scripts/clearDatabase.ts"
   },
   "dependencies": {
-    "@reacticons/ionicons": "^6.0.4",
+    "@reacticons/ionicons": "^7.1.0",
     "@tanstack/react-query": "^4.23.0",
     "axios": "^1.2.3",
     "firebase": "^9.23.0",

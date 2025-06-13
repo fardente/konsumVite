@@ -1,4 +1,4 @@
-import IonIcon from '@reacticons/ionicons';
+import { IoCloseOutline } from 'react-icons/io5';
 import React, { useState } from 'react';
 import { useSuggestionsQuery } from '../ShoppingList/Hooks/useFetchSuggestions';
 
@@ -71,7 +71,7 @@ export default function IngredientInput({
               className="button is-danger is-light"
             >
               <span className="icon is-small is-left">
-                <IonIcon name="close-outline"></IonIcon>
+                <IoCloseOutline />
               </span>
             </a>
           </div>

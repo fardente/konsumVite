@@ -1,8 +1,8 @@
-import IonIcon from '@reacticons/ionicons';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useFetchRecipes } from './Hooks/useFetchRecipes';
 import RecipeListItem from './RecipeListItem';
+import { IoAddOutline, IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
 
 export default function RecipeList() {
   const { data, isError, isLoading } = useFetchRecipes();
@@ -22,7 +22,7 @@ export default function RecipeList() {
       <div className="control m-4">
         <Link className="button is-success" to="/recipes/add">
           <span className="icon is-large">
-            <IonIcon name="add-outline" className="is-large"></IonIcon>
+            <IoAddOutline size={32} />
           </span>
           <span>Add Recipe</span>
         </Link>
@@ -39,7 +39,7 @@ export default function RecipeList() {
             onChange={event => setSearchTerm(event.target.value)}
           ></input>{' '}
           <span className="icon is-small is-left">
-            <IonIcon name="search-outline"></IonIcon>
+            <IoSearchOutline />
           </span>
         </div>
         <div className="control">
@@ -50,7 +50,7 @@ export default function RecipeList() {
             }}
           >
             <span className="icon is-small is-left">
-              <IonIcon name="close-outline"></IonIcon>
+              <IoCloseOutline />
             </span>
           </a>
         </div>
