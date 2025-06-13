@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAddRecipeMutation from './Hooks/useAddRecipeMutation';
-import { IoCloudOutline, IoCloudUploadOutline } from 'react-icons/io5';
+import { IoCloseOutline } from 'react-icons/io5';
+import IngredientsForm from './IngredientsForm';
 
 export default function RecipeForm() {
-  const [ingredients, setIngredients] = useState([{ ingredientName: '' }]);
-
   const navigate = useNavigate();
   const mutate = useAddRecipeMutation();
 
@@ -30,11 +29,6 @@ export default function RecipeForm() {
     r.ingredients = ingredients;
     mutate.mutate(r);
     navigate('/recipes');
-  }
-
-  function onAdd(event: React.FormEvent) {
-    event.preventDefault();
-    setIngredients([...ingredients, { ingredientName: '' }]);
   }
 
   return (
@@ -69,44 +63,7 @@ export default function RecipeForm() {
               <h2 className="subtitle has-text-weight-semibold has-text-centered">
                 Ingredients:
               </h2>
-              <div className="field">
-                {ingredients.map((item, index) => (
-                  <div className="field has-addons" key={index.toString()}>
-                    <div className="control">
-                      <input
-                        className="input"
-                        name={'ingredient' + index}
-                        type="text"
-                        placeholder="New ingredient..."
-                        autoComplete="off"
-                        data-testid={'ingredientInput' + index}
-                      ></input>
-                      {/* {showResults && renderResults(index)} */}
-                    </div>
-                    <div className="control">
-                      <a
-                        // name={index}
-                        // onClick={event => onRemove(event, index)}
-                        className="button is-danger is-light"
-                      >
-                        {' '}
-                        <span className="icon is-small is-left">
-                          <IoCloudOutline />
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                ))}
-                <div className="control">
-                  <button
-                    className="button is-success is-light is-outlined"
-                    name="addIngredientBtn"
-                    onClick={event => onAdd(event)}
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
+              <IngredientsForm ingredient_names={['']} />
             </div>
 
             <div className="field">
@@ -133,7 +90,7 @@ export default function RecipeForm() {
                   ></input>
                   <span className="file-cta">
                     <span className="file-icon">
-                      <IoCloudUploadOutline />
+                      <IoCloseOutline />
                     </span>
                     <span className="file-label">Choose a file…</span>
                   </span>

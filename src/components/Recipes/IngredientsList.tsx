@@ -2,7 +2,7 @@ import React from 'react';
 import { useShoppingItemsQuery } from '../ShoppingList/Hooks/useFetchItems';
 import Checkbox from './Checkbox';
 import { useAddIngredientsToShoppingListMutation } from './Hooks/useAddIngredientsToShoppingListMutation';
-import UpdateIngredientsForm from './IngredientsForm';
+import IngredientsForm from './IngredientsForm';
 import { IoCheckmarkOutline } from 'react-icons/io5';
 
 export default function IngredientsList({
@@ -44,7 +44,7 @@ export default function IngredientsList({
       <div className="container has-text-centered  ">
         <h2 className="subtitle has-text-weight-semibold has-text-centered"></h2>
         {editMode ? (
-          <UpdateIngredientsForm ingredient_names={ingredients} />
+          <IngredientsForm ingredient_names={ingredients} />
         ) : (
           <form
             action="/"

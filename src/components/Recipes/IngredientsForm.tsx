@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SuggestionBox from './SuggestionBox';
 import { IoCloseOutline } from 'react-icons/io5';
 
-export default function UpdateIngredientsForm({
+export default function IngredientsForm({
   ingredient_names,
 }: {
   ingredient_names: string[];
@@ -57,6 +57,7 @@ export default function UpdateIngredientsForm({
               placeholder="New ingredient..."
               name="ingredient"
               onChange={event => onChange(event, index)}
+              data-testid={'ingredientInput' + index}
               // onBlur={event => {
               //   setInput('');
               //   setCurrentIndex(null);
