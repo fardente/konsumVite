@@ -12,7 +12,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Validate required config
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
@@ -21,16 +20,15 @@ const requiredEnvVars = [
   'VITE_FIREBASE_MESSAGING_SENDER_ID',
   'VITE_FIREBASE_APP_ID',
 ];
-
 const missingVars = requiredEnvVars.filter(
   varName => !import.meta.env[varName]
 );
-
 if (missingVars.length > 0) {
   throw new Error(
     `Missing required environment variables: ${missingVars.join(', ')}`
   );
 }
+
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);

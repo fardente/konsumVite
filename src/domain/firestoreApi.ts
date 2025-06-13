@@ -48,6 +48,7 @@ export async function fetchShoppingItems(): Promise<IShoppingListItem[]> {
     const items = await getDocs(
       query(
         collection(db, 'items'),
+        orderBy('checked'),
         orderBy('updated', 'desc'),
         where('onList', '==', true)
       )
@@ -144,10 +145,19 @@ export async function fetchRecipes(): Promise<IRecipe[]> {
       let objectURL: string | undefined = undefined;
       if (recipe.imageUrl !== '') {
         console.log('Fetching image for recipe', doc.data().imageUrl);
-        const storage = getStorage();
-        const storageRef = ref(storage, doc.data().imageUrl);
-        const imageBlob = await getBlob(storageRef);
-        objectURL = URL.createObjectURL(imageBlob);
+        try {
+          const storage = getStorage();
+          const storageRef = ref(storage, doc.data().imageUrl);
+          const imageBlob = await getBlob(storageRef);
+          objectURL = URL.createObjectURL(imageBlob);
+        } catch (error: any) {
+          if (error.code === 'storage/object-not-found') {
+            console.warn('Image not found in storage for recipe:', doc.id);
+            objectURL = 'https://placehold.co/1280x960';
+          } else {
+            throw error; // rethrow if it's a different error
+          }
+        }
       }
       return {
         ...recipe,
@@ -161,15 +171,19 @@ export async function fetchRecipes(): Promise<IRecipe[]> {
 export async function fetchRecipe(
   recipe_query: string
 ): Promise<IRecipe | undefined> {
-  const recipe = await getDoc(doc(db, 'recipes', recipe_query));
-  if (!recipe.exists()) return undefined;
+  const recipeDoc = await getDoc(doc(db, 'recipes', recipe_query));
+  if (!recipeDoc.exists()) return undefined;
+
+  const recipe = recipeDoc.data();
+  let objectURL: string = 'https://placehold.co/1280x960';
+
   console.log('Fetching recipe', recipe_query);
-  console.log('Recipe data:', recipe.data());
-  let objectURL: string | undefined = undefined;
-  if (recipe.data().imageUrl !== 's') {
-    const storage = getStorage();
-    const storageRef = ref(storage, recipe_query);
+  console.log('Recipe data:', recipe);
+
+  if (recipe.imageUrl) {
     try {
+      const storage = getStorage();
+      const storageRef = ref(storage, recipe.imageUrl);
       const imageBlob = await getBlob(storageRef);
       console.log('Fetching image for recipe', recipe_query);
       objectURL = URL.createObjectURL(imageBlob);
@@ -183,7 +197,7 @@ export async function fetchRecipe(
     }
   }
   return {
-    ...recipe.data(),
+    ...recipe,
     recipeName: recipe.id,
     imageUrl: objectURL,
   } as IRecipe;
@@ -191,23 +205,26 @@ export async function fetchRecipe(
 
 export async function addRecipe(recipe: IAddRecipeForm) {
   console.log('Adding recipe', recipe);
+  let imageUrl: string = recipe.recipeName;
+
+  if (!recipe.file || !('size' in recipe.file) || recipe.file.size === 0) {
+    console.error('No file provided for recipe image upload');
+    imageUrl = '';
+  } else {
+    const storage = getStorage();
+    const storageRef = ref(storage, recipe.recipeName);
+    uploadBytes(storageRef, recipe.file).then(snapshot => {
+      console.log('Uploaded a blob or file!');
+    });
+  }
+
   await setDoc(doc(db, 'recipes', recipe.recipeName), {
     id: recipe.recipeName,
     name: recipe.recipeName,
     ingredients: [...recipe.ingredients],
     recipePreparation: recipe.recipePreparation,
-    imageUrl: recipe.file?.size > 0 ? recipe.recipeName : '',
+    imageUrl,
     updated: serverTimestamp(),
-  });
-  const storage = getStorage();
-  const storageRef = ref(storage, recipe.recipeName);
-
-  if (!recipe.file || !('size' in recipe.file) || recipe.file.size === 0) {
-    console.error('No file provided for recipe image upload');
-    return;
-  }
-  uploadBytes(storageRef, recipe.file).then(snapshot => {
-    console.log('Uploaded a blob or file!');
   });
 }
 
