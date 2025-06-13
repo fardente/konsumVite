@@ -7,6 +7,7 @@ type TAddIngredientsToShoppingList = {
 };
 
 export const useAddIngredientsToShoppingListMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (ingredients: TAddIngredientsToShoppingList) => {
       const items = ingredients.ingredients.map(item => ({
@@ -14,6 +15,10 @@ export const useAddIngredientsToShoppingListMutation = () => {
         tags: [ingredients.recipeName],
       }));
       return addMultipleShoppingItems(items);
+    },
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries({ queryKey: ['recipe', data.recipeName] });
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
     },
     onError: (err, _, context) => {
       console.log('Error adding ingredients:', err);
