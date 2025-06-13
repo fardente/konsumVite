@@ -12,7 +12,7 @@ export const useUpdateRecipeImageMutation = () => {
       file: Blob | Uint8Array | ArrayBuffer;
     }) => updateRecipeImage(recipe_name, file),
     onSuccess: () => {
-      queryClient.invalidateQueries(['updaterecipes']);
+      queryClient.invalidateQueries({ queryKey: ['updaterecipes'] });
     },
   });
 };

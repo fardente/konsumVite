@@ -36,7 +36,7 @@ export const useDeleteItemMutation = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['shoppingItems']);
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
     },
   });
 };

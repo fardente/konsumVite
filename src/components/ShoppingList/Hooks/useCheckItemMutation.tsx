@@ -45,7 +45,7 @@ export const useCheckItemMutation = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['shoppingItems']);
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
     },
   });
 };

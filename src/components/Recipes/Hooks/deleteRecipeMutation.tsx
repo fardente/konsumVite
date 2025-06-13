@@ -6,7 +6,7 @@ export const useDeleteRecipeMutation = () => {
   return useMutation({
     mutationFn: (recipe_name: string) => deleteRecipe(recipe_name),
     onSuccess: () => {
-      queryClient.invalidateQueries(['updaterecipes']);
+      queryClient.invalidateQueries({ queryKey: ['updaterecipes'] });
     },
   });
 };

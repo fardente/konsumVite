@@ -55,7 +55,7 @@ export const useAddTagMutation = () => {
     },
     onSuccess: () => {
       // Invalidate the query to ensure the cache is in sync with the server
-      queryClient.invalidateQueries(['shoppingItems']);
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
     },
   });
 };

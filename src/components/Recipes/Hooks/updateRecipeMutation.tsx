@@ -7,7 +7,7 @@ export const useUpdateRecipeMutation = () => {
   return useMutation({
     mutationFn: (recipe: IUpdateRecipeForm) => updateRecipe(recipe),
     onSuccess: () => {
-      queryClient.invalidateQueries(['recipe']);
+      queryClient.invalidateQueries({ queryKey: ['recipe'] });
     },
   });
 };

@@ -7,7 +7,7 @@ export default function useAddRecipeMutation() {
   return useMutation({
     mutationFn: (recipe: IAddRecipeForm) => addRecipe(recipe),
     onSuccess: () => {
-      queryClient.invalidateQueries(['recipes']);
+      queryClient.invalidateQueries({ queryKey: ['recipes'] });
     },
   });
 }

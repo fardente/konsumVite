@@ -50,7 +50,7 @@ export const useAddItemMutation = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['shoppingItems']);
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
     },
   });
 };

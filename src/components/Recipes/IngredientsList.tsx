@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useShoppingItemsQuery } from '../ShoppingList/Hooks/useFetchItems';
 import Checkbox from './Checkbox';
-import UpdateIngredientsForm from './IngredientsForm';
 import { useAddIngredientsToShoppingListMutation } from './Hooks/useAddIngredientsToShoppingListMutation';
+import UpdateIngredientsForm from './IngredientsForm';
 import { IoCheckmarkOutline } from 'react-icons/io5';
 
 export default function IngredientsList({
@@ -33,13 +33,9 @@ export default function IngredientsList({
   ) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const ingredients = formData
-      .values()
-      .toArray()
-      .filter(
-        (value): value is string =>
-          typeof value === 'string' && value.length > 0
-      );
+    const ingredients = Array.from(formData.values()).filter(
+      (value): value is string => typeof value === 'string' && value.length > 0
+    );
     putIngredientsOnShoppingList({ ingredients, recipeName });
   }
 
