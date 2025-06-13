@@ -35,7 +35,11 @@ export default function AuthProvider({
 
   return (
     <div>
-      <div>{error && <span style={{ color: 'red' }}>Login error!</span>}</div>
+      <div>
+        {error && (
+          <span style={{ color: 'red' }}>Login error! {error.message}</span>
+        )}
+      </div>
       {userChecked ? (
         user ? (
           children

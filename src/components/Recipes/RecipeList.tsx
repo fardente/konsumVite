@@ -5,10 +5,10 @@ import RecipeListItem from './RecipeListItem';
 import { IoAddOutline, IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
 
 export default function RecipeList() {
-  const { data, isError, isLoading } = useFetchRecipes();
+  const { data, isError, error, isLoading } = useFetchRecipes();
 
   const [searchTerm, setSearchTerm] = React.useState('');
-  if (isError) return <div>Error!</div>;
+  if (isError) return <div>Error! {error.message}</div>;
 
   if (!data || isLoading) return <div>Loading...</div>;
   const filteredRecipes = data.filter(

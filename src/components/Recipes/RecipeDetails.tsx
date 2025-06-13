@@ -18,13 +18,13 @@ export default function RecipeDetails() {
   const { id } = useParams();
   if (!id) return <div></div>;
 
-  const { isError, isLoading, data: recipe } = useFetchRecipe(id);
+  const { isError, error, isLoading, data: recipe } = useFetchRecipe(id);
   const { mutate: submitUpdateRecipe } = useUpdateRecipeMutation();
   const { mutate: deleteRecipe } = useDeleteRecipeMutation();
   const [editMode, setEditMode] = React.useState(false);
   const navigate = useNavigate();
 
-  if (isError) return <div>Could not load recipe</div>;
+  if (isError) return <div>Could not load recipe: {error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
   if (!recipe) return <div>Loading...</div>;
   type IRecipeFormData = {
