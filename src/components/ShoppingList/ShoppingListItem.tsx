@@ -5,8 +5,8 @@ import { useCheckItemMutation } from './Hooks/useCheckItemMutation';
 import { useDeleteItemMutation } from './Hooks/useDeleteItemMutation';
 import ShoppingItemDetailsModalView from './ShoppingItemDetailsModal';
 import {
-  IoCheckboxOutline,
   IoCheckmarkDoneOutline,
+  IoCheckmarkOutline,
   IoTrashOutline,
 } from 'react-icons/io5';
 
@@ -68,7 +68,7 @@ export default function ShoppingListItem({
           onClick={() => checkItem({ itemId: item.id, checked: !item.checked })}
         >
           <span className="icon is-small">
-            {checked ? <IoCheckmarkDoneOutline /> : <IoCheckboxOutline />}
+            {checked ? <IoCheckmarkDoneOutline /> : <IoCheckmarkOutline />}
           </span>
         </button>
       </div>
