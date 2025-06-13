@@ -5,4 +5,5 @@ export const useFetchRecipes = () =>
   useQuery({
     queryKey: ['recipes'],
     queryFn: fetchRecipes,
+    retry: 0,
   });
