@@ -1,12 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { IoPizzaSharp } from 'react-icons/io5';
 
 export default function Nav() {
   const [active, setActive] = React.useState('');
+  const location = useLocation();
 
   function onToggleActive() {
     return setActive(active => (active ? '' : 'is-active'));
+  }
+
+  function getTitle(pathname: string) {
+    if (pathname.startsWith('/recipes')) return 'Recipes';
+    if (pathname.startsWith('/ingredients')) return 'Ingredients';
+    return 'Shopping List';
   }
 
   return (
@@ -16,7 +23,7 @@ export default function Nav() {
           <span className="icon mx-3 has-background-warning-light has-text-danger-dark">
             <IoPizzaSharp className="is-large" />
           </span>
-          {'   '}Recipe Manager
+          {getTitle(location.pathname)}
         </div>
 
         <div
