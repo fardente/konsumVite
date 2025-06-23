@@ -53,7 +53,7 @@ export default function IngredientInput({
                     // onClick={() => onAdd(item.item_name)}
                     className="button is-light"
                   >
-                    {item.name}
+                    {item}
                     {/* <span className="icon is-small">
                             {checkExists(item.item_name) ? (
                                 <ion-icon name="checkmark-done-outline"></ion-icon>

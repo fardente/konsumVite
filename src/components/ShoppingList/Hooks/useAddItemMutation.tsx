@@ -1,38 +1,27 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IShoppingListItem } from '../../../domain/api';
-import {
-  IAddShoppingItem,
-  addShoppingItem,
-} from '../../../domain/firestoreApi';
+import { addShoppingItem } from '../../../domain/firestoreApi';
+import { ShoppingItem } from '../../../domain/shoppingItem';
 
 export const useAddItemMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (item: IAddShoppingItem) => addShoppingItem(item),
-    onMutate: async (item: IAddShoppingItem) => {
+    mutationFn: (name: string) => addShoppingItem(name),
+    onMutate: async item => {
       await queryClient.cancelQueries({ queryKey: ['shoppingItems'] });
 
-      const prev: IShoppingListItem[] | undefined = queryClient.getQueryData([
+      const prev: ShoppingItem[] | undefined = queryClient.getQueryData([
         'shoppingItems',
       ]);
-
-      queryClient.setQueryData<IShoppingListItem[] | undefined>(
+      queryClient.setQueryData<ShoppingItem[] | undefined>(
         ['shoppingItems'],
         oldItems => {
           if (oldItems) {
             const newItems = [
               ...oldItems.filter(
                 existingItem =>
-                  existingItem.id.toLowerCase() !== item.name.toLowerCase()
+                  existingItem.name_lowercase !== item.toLowerCase()
               ),
-              {
-                id: item.name,
-                name: item.name,
-                onList: true,
-                checked: false,
-                tags: item.tags || [],
-                updated: Date.now(),
-              },
+              new ShoppingItem(item),
             ];
             return newItems;
           }

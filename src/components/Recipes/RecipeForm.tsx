@@ -1,33 +1,30 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import useAddRecipeMutation from './Hooks/useAddRecipeMutation';
+import React from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
+import { Link, useNavigate } from 'react-router-dom';
+import { IAddRecipeForm } from '../../domain/interfaces';
+import useAddRecipeMutation from './Hooks/useAddRecipeMutation';
 import IngredientsForm from './IngredientsForm';
 
 export default function RecipeForm() {
   const navigate = useNavigate();
-  const mutate = useAddRecipeMutation();
+  const { mutate: addRecipe } = useAddRecipeMutation();
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const ingredients: string[] = [];
     const formData = new FormData(event.currentTarget as HTMLFormElement);
-    const r: any = {};
-    r.recipeName = formData.get('recipe_name') as string;
-    r.recipePreparation = formData.get('recipe_preparation') as string;
-    r.file = formData.get('file') as File;
-    console.log(
-      'map',
-      [...formData.entries()].map(e => {
-        if (typeof e[1] === 'string' && e[0].startsWith('ingredient')) {
-          ingredients.push(e[1]);
-          return;
-        }
-        r[e[0]] = e[1];
-      })
-    );
-    r.ingredients = ingredients;
-    mutate.mutate(r);
+    const name = formData.get('recipe_name') as string;
+    const recipePreparation = formData.get('recipe_preparation') as string;
+    const file = formData.get('file') as File;
+    const ingredients: string[] = Array.from(formData.entries())
+      .filter(([key]) => key.startsWith('ingredient'))
+      .map(([, value]) => value.toString().trim());
+    const newrec: IAddRecipeForm = {
+      name,
+      recipePreparation,
+      ingredients,
+      file,
+    };
+    addRecipe(newrec);
     navigate('/recipes');
   }
 

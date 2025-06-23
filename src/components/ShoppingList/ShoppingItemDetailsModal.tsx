@@ -1,14 +1,14 @@
 import React from 'react';
-import { IShoppingListItem } from '../../domain/api';
+import { IoAddCircle } from 'react-icons/io5';
+import { ShoppingItem } from '../../domain/shoppingItem';
 import { useAddTagMutation } from './Hooks/useAddTagMutation';
 import { useRemoveTagMutation } from './Hooks/useRemoveTagMutation';
-import { IoAddCircle } from 'react-icons/io5';
 
 export default function ShoppingItemDetailsModalView({
   item,
   availableTags,
 }: {
-  item: IShoppingListItem;
+  item: ShoppingItem;
   availableTags: string[];
 }) {
   const [currentInputValue, setCurrentInputValue] = React.useState('');
@@ -33,7 +33,7 @@ export default function ShoppingItemDetailsModalView({
   function checkKey(event: React.KeyboardEvent) {
     if (event.key == 'Enter') {
       event.preventDefault();
-      onAddTag(item.id, currentInputValue);
+      onAddTag(item.name, currentInputValue);
     }
   }
 
@@ -50,12 +50,12 @@ export default function ShoppingItemDetailsModalView({
     <>
       <h4 className="title is-4 is-capitalized">{item.name}</h4>
       <div className="tags are-large is-align-items-flex-start">
-        {item.tags.length === 0 ? 'No Tags' : ''}
+        {item.getTags().length === 0 ? 'No Tags' : ''}
         {item.tags.map(tag => (
           <span
             key={`${tag}`}
-            className="tag is-warning is-rounded"
-            onClick={() => onRemoveTag(item.id, tag)}
+            className="tag is-warning is-rounded is-capitalized is-clickable"
+            onClick={() => onRemoveTag(item.name, tag)}
           >
             <>
               {tag}
@@ -74,8 +74,8 @@ export default function ShoppingItemDetailsModalView({
         {unusedTags.map(tag => (
           <span
             key={`${tag}`}
-            className="tag has-text-grey-light is-rounded"
-            onClick={() => onAddTag(item.id, tag)}
+            className="tag has-text-grey-light is-rounded is-capitalized is-clickable"
+            onClick={() => onAddTag(item.name, tag)}
           >
             {tag}{' '}
             <span className="icon is-large ml-0">
@@ -99,7 +99,7 @@ export default function ShoppingItemDetailsModalView({
         <div className="control">
           <button
             className="button"
-            onClick={() => onAddTag(item.id, currentInputValue)}
+            onClick={() => onAddTag(item.name, currentInputValue)}
           >
             Add
           </button>

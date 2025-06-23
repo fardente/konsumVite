@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IAddRecipeForm } from '../../../domain/api';
+import { IAddRecipeForm } from '../../../domain/interfaces';
 import { addRecipe } from '../../../domain/firestoreApi';
 
 export default function useAddRecipeMutation() {
@@ -8,6 +8,10 @@ export default function useAddRecipeMutation() {
     mutationFn: (recipe: IAddRecipeForm) => addRecipe(recipe),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipes'] });
+    },
+    onError: (error: any) => {
+      console.error('Error adding recipe:', error);
+      // Optionally, you can show a notification or alert to the user
     },
   });
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IShoppingListItem } from '../../../domain/api';
 import { deleteShoppingItem } from '../../../domain/firestoreApi';
+import { ShoppingItem } from '../../../domain/shoppingItem';
 
 export const useDeleteItemMutation = () => {
   const queryClient = useQueryClient();
@@ -9,16 +9,16 @@ export const useDeleteItemMutation = () => {
     onMutate: async (itemID: string) => {
       await queryClient.cancelQueries({ queryKey: ['shoppingItems'] });
 
-      const prev: IShoppingListItem[] | undefined = queryClient.getQueryData([
+      const prev: ShoppingItem[] | undefined = queryClient.getQueryData([
         'shoppingItems',
       ]);
 
-      queryClient.setQueryData<IShoppingListItem[] | undefined>(
+      queryClient.setQueryData<ShoppingItem[] | undefined>(
         ['shoppingItems'],
         oldItems => {
           if (oldItems) {
             return oldItems.filter(item => {
-              if (item.id !== itemID) {
+              if (item.name_lowercase !== itemID.toLowerCase()) {
                 return item;
               }
             });

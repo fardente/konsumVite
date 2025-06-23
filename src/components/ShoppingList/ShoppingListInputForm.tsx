@@ -1,7 +1,7 @@
 import React from 'react';
+import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
 import { useAddItemMutation } from './Hooks/useAddItemMutation';
 import { useSuggestionsQuery } from './Hooks/useFetchSuggestions';
-import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
 
 export default function ShoppingListInputForm({
   currentInputValue,
@@ -22,7 +22,7 @@ export default function ShoppingListInputForm({
   function checkKey(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key == 'Enter') {
       event.preventDefault();
-      submitItem({ name: currentInputValue, tags: [] });
+      submitItem(currentInputValue);
       setCurrentInputValue('');
     }
   }
@@ -40,12 +40,12 @@ export default function ShoppingListInputForm({
               <div
                 onClick={event => {
                   event.preventDefault();
-                  submitItem({ name: suggestion.name, tags: [] });
+                  submitItem(suggestion);
                   setCurrentInputValue('');
                 }}
                 className="button is-light"
               >
-                {suggestion.name}
+                {suggestion}
               </div>
             </div>
           ))}
@@ -71,7 +71,7 @@ export default function ShoppingListInputForm({
         ></input>
         <button
           onClick={() => {
-            submitItem({ name: currentInputValue, tags: [] });
+            submitItem(currentInputValue);
             setCurrentInputValue('');
           }}
           data-testid="addShoppingItemButton"

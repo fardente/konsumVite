@@ -12,6 +12,9 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+export const COLLECTION_PREFIX = import.meta.env
+  .VITE_FIREBASE_COLLECTION_PREFIX;
+
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
@@ -19,7 +22,9 @@ const requiredEnvVars = [
   'VITE_FIREBASE_STORAGE_BUCKET',
   'VITE_FIREBASE_MESSAGING_SENDER_ID',
   'VITE_FIREBASE_APP_ID',
+  'VITE_FIREBASE_COLLECTION_PREFIX',
 ];
+
 const missingVars = requiredEnvVars.filter(
   varName => !import.meta.env[varName]
 );

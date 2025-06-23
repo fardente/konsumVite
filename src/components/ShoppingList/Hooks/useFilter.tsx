@@ -1,26 +1,23 @@
-import { IShoppingListItem } from '../../../domain/api';
+import { ShoppingItem } from '../../../domain/shoppingItem';
 
 export default function useFilter(
   setFilter: React.Dispatch<React.SetStateAction<string[]>>
 ) {
-  function filterItemsByInput(
-    itemsToFilter: IShoppingListItem[],
-    input: string
-  ) {
+  function filterItemsByInput(itemsToFilter: ShoppingItem[], input: string) {
     return itemsToFilter.filter(
       item => item.name.toLowerCase().indexOf(input.toLowerCase()) != -1
     );
   }
 
-  function filterItemsByTag(
-    itemsToFilter: IShoppingListItem[],
-    tags: string[]
-  ) {
+  function filterItemsByTag(itemsToFilter: ShoppingItem[], tags: string[]) {
     if (tags.length === 0) return itemsToFilter;
 
     const filteredItems = itemsToFilter.filter(
-      ({ tags: itemTags }) =>
-        itemTags.map(i => i).filter(it => tags.includes(it)).length > 0
+      item =>
+        item
+          .getTags()
+          .map(i => i)
+          .filter(it => tags.includes(it)).length > 0
     );
 
     if (filteredItems.length === 0) {
@@ -31,11 +28,7 @@ export default function useFilter(
     }
   }
 
-  function filterItems(
-    items: IShoppingListItem[],
-    input: string,
-    tags: string[]
-  ) {
+  function filterItems(items: ShoppingItem[], input: string, tags: string[]) {
     input = input.toLowerCase().trim();
     return filterItemsByTag(filterItemsByInput(items, input), tags);
   }

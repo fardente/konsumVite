@@ -1,11 +1,11 @@
 import React from 'react';
-import { IShoppingListItem } from '../../domain/api';
-import FilterView from './FilterView';
-import useFilter from './Hooks/useFilter';
+import { ShoppingItem } from '../../domain/shoppingItem';
 import useModal from '../useModal';
+import FilterView from './FilterView';
+import { useShoppingItemsQuery } from './Hooks/useFetchItems';
+import useFilter from './Hooks/useFilter';
 import ShoppingListInputForm from './ShoppingListInputForm';
 import ShoppingListItem from './ShoppingListItem';
-import { useShoppingItemsQuery } from './Hooks/useFetchItems';
 
 export default function Shopping() {
   const { isLoading, isError, data } = useShoppingItemsQuery();
@@ -22,14 +22,16 @@ export default function Shopping() {
 
   if (!data || isLoading) return <div>Loading...</div>;
 
-  function getTagsInUse(items: IShoppingListItem[]): string[] {
-    const allTags = items.reduce<string[]>(
-      (accumulator, curr) => [
+  function getTagsInUse(items: ShoppingItem[]) {
+    // const alltags =items.flatMap(item => item.getTags());
+    // const uniqueTags = new Set(alltags.map(tag => tag.toLowerCase()));
+    const allTags = items.reduce((accumulator, curr) => {
+      const tags = curr.getTags().map(tag => tag.toLowerCase());
+      return [
         ...accumulator,
-        ...curr.tags.filter(tag => !accumulator.includes(tag)).map(tag => tag),
-      ],
-      []
-    );
+        ...tags.filter(tag => !accumulator.includes(tag)),
+      ];
+    }, [] as string[]);
     return allTags;
   }
 
@@ -39,9 +41,22 @@ export default function Shopping() {
 
   return (
     <div className="container has-text-centered shopping-container">
-      <div className="is-relative">
-        <h2 className="title">Shopping List</h2>
+      <div className="columns mt-0 is-centered shopping-items">
+        <div className="column is-half">
+          <div className="container shopping-items-container">
+            {filtered.map(item => (
+              <ShoppingListItem
+                key={item.name}
+                item={item}
+                availableTags={tagsInUse}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
 
+      <div className="flex mb-4">
+        di
         <FilterModal>
           <FilterView
             setFilter={setFilterTags}
@@ -53,26 +68,11 @@ export default function Shopping() {
         <button className="button btnFilter" onClick={toggleFilterModal}>
           Filter
         </button>
+        <ShoppingListInputForm
+          currentInputValue={currentInputValue}
+          setCurrentInputValue={setCurrentInputValue}
+        />
       </div>
-
-      <div className="columns mt-0 is-centered shopping-items">
-        <div className="column is-half">
-          <div className="container shopping-items-container">
-            {filtered.map(item => (
-              <ShoppingListItem
-                key={item.id}
-                item={item}
-                availableTags={tagsInUse}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <ShoppingListInputForm
-        currentInputValue={currentInputValue}
-        setCurrentInputValue={setCurrentInputValue}
-      />
     </div>
   );
 }

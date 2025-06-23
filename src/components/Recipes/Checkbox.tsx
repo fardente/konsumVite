@@ -1,11 +1,10 @@
 import React from 'react';
-import { IIngredient } from '../../domain/api';
 
 export default function Checkbox({
   initial,
   value,
   name,
-  disabled
+  disabled,
 }: {
   initial: boolean;
   value: string;

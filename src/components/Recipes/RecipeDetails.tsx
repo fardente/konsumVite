@@ -1,11 +1,4 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { IRecipe } from '../../domain/api';
-import { useUpdateRecipeMutation } from './Hooks/updateRecipeMutation';
-import { useFetchRecipe } from './Hooks/useFetchRecipe';
-import IngredientsList from './IngredientsList';
-import { useUpdateRecipeImageMutation } from './Hooks/updateRecipeImageMutation';
-import { useDeleteRecipeMutation } from './Hooks/deleteRecipeMutation';
 import {
   IoCameraOutline,
   IoCheckmarkCircleOutline,
@@ -13,6 +6,13 @@ import {
   IoCreateOutline,
   IoTrashOutline,
 } from 'react-icons/io5';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Recipe } from '../../domain/recipe';
+import { useDeleteRecipeMutation } from './Hooks/deleteRecipeMutation';
+import { useUpdateRecipeImageMutation } from './Hooks/updateRecipeImageMutation';
+import { useUpdateRecipeMutation } from './Hooks/updateRecipeMutation';
+import { useFetchRecipe } from './Hooks/useFetchRecipe';
+import IngredientsList from './IngredientsList';
 
 export default function RecipeDetails() {
   const { id } = useParams();
@@ -21,23 +21,19 @@ export default function RecipeDetails() {
   const { isError, error, isLoading, data: recipe } = useFetchRecipe(id);
   const { mutate: submitUpdateRecipe } = useUpdateRecipeMutation();
   const { mutate: deleteRecipe } = useDeleteRecipeMutation();
+  const { mutate: updateRecipeImage } = useUpdateRecipeImageMutation();
   const [editMode, setEditMode] = React.useState(false);
   const navigate = useNavigate();
 
   if (isError) return <div>Could not load recipe: {error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
   if (!recipe) return <div>Loading...</div>;
-  type IRecipeFormData = {
-    recipeName: string;
-    recipePreparation: string;
-    imageUrl: string;
-    ingredients: string[];
-  };
+
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const recipeDto: IRecipeFormData = {
-      recipeName: formData.get('recipe_name') as string,
+    const recipeDto: Recipe = {
+      name: formData.get('recipe_name') as string,
       recipePreparation: formData.get('recipe_preparation') as string,
       imageUrl: formData.get('recipe_name') as string,
       ingredients: formData.getAll('ingredient') as string[],
@@ -64,7 +60,7 @@ export default function RecipeDetails() {
       return event.target;
     }
     console.log('submitting image', event.target.files[0]);
-    useUpdateRecipeImageMutation().mutate({
+    updateRecipeImage({
       recipe_name: name,
       file: event.target.files[0],
     });
@@ -81,15 +77,15 @@ export default function RecipeDetails() {
       className="input is-info"
       type="text"
       name="recipe_name"
-      defaultValue={recipe.recipeName}
+      defaultValue={recipe.name}
     ></input>
   );
 
-  function title(recipe: IRecipe) {
+  function title(recipe: Recipe) {
     if (editMode) {
       return editTitleInput;
     }
-    return recipe.recipeName;
+    return recipe.name;
   }
 
   const renderform = (
@@ -118,7 +114,7 @@ export default function RecipeDetails() {
                     className="file-input"
                     type="file"
                     name="newRecipeImage"
-                    onChange={event => changeImage(event, recipe.recipeName)}
+                    onChange={event => changeImage(event, recipe.name)}
                   />
                   <span className="icon is-large">
                     <IoCameraOutline />
@@ -131,7 +127,7 @@ export default function RecipeDetails() {
             {editMode && (
               <button
                 className="recipe-button"
-                onClick={() => onDeleteRecipe(recipe.recipeName)}
+                onClick={() => onDeleteRecipe(recipe.name)}
               >
                 <span className="icon is-large">
                   <IoTrashOutline />
@@ -176,7 +172,7 @@ export default function RecipeDetails() {
           <div className="column is-one-third">
             <IngredientsList
               ingredients={recipe.ingredients}
-              recipeName={recipe.recipeName}
+              recipeName={recipe.name}
               editMode={editMode}
             />
           </div>

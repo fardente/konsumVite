@@ -1,5 +1,4 @@
 import {
-  addDoc,
   arrayRemove,
   arrayUnion,
   collection,
@@ -17,84 +16,62 @@ import {
   where,
 } from 'firebase/firestore';
 import { getBlob, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { db } from '../firebase';
-import {
-  IAddRecipeForm,
-  IRecipe,
-  IShoppingListItem,
-  IUpdateRecipeForm,
-} from './api';
+import { COLLECTION_PREFIX, db } from '../firebase';
+import { IAddRecipeForm } from './interfaces';
+import { Recipe, RecipeConverter } from './recipe';
+import { ShoppingItem, ShoppingItemConverter } from './shoppingItem';
 
-async function firetest() {
-  try {
-    const docRef = await addDoc(collection(db, 'users'), {
-      first: 'Ada',
-      last: 'Lovelace',
-      born: 1815,
-    });
-    console.log('Document written with ID: ', docRef.id);
-    const querySnapshot = await getDocs(collection(db, 'ter'));
-    querySnapshot.forEach(doc => {
-      console.log(`${doc.id} => ${doc.data()}`);
-    });
-  } catch (e) {
-    console.error('Error adding document: ', e);
-  }
-}
+const RECIPE_COLLECTION = COLLECTION_PREFIX + 'recipes';
+const SHOPPING_ITEMS_COLLECTION = COLLECTION_PREFIX + 'items';
+export const PLACEHOLDER_IMAGE_URL = 'https://placehold.co/1280x960';
 
-export async function fetchShoppingItems(): Promise<IShoppingListItem[]> {
+export async function fetchShoppingItems(): Promise<ShoppingItem[]> {
   console.log('Fetching shopping items');
   try {
     const items = await getDocs(
       query(
-        collection(db, 'items'),
+        collection(db, SHOPPING_ITEMS_COLLECTION).withConverter(
+          ShoppingItemConverter
+        ),
         orderBy('checked'),
         orderBy('updated', 'desc'),
         where('onList', '==', true)
       )
     );
-    console.log('Fetched shopping items:', items.docs.length);
-    return items.docs.map(doc => {
-      return { ...doc.data(), name: doc.id } as IShoppingListItem;
-    });
+    console.log('Fetched shopping items:', items.docs);
+    const res = items.docs.map(doc => doc.data());
+    console.log('Shopping items data:', res);
+    return res as ShoppingItem[];
   } catch (error) {
     console.error('Error fetching shopping items:', error);
     throw error; // rethrow the error to handle it in the calling function
   }
 }
 
-export interface IAddShoppingItem {
-  name: string;
-  tags: string[];
-}
-export async function addShoppingItem({ name, tags = [] }: IAddShoppingItem) {
-  name = name.toLowerCase().trim();
-  tags = tags.map(tag => tag.toLowerCase().trim());
+export async function addShoppingItem(name: string) {
+  console.log('Adding shopping item', name);
+  const shoppingItem = new ShoppingItem(name);
   await setDoc(
-    doc(db, 'items', name),
+    doc(db, SHOPPING_ITEMS_COLLECTION, name).withConverter(
+      ShoppingItemConverter
+    ),
+    shoppingItem,
     {
-      id: name,
-      onList: true,
-      checked: false,
-      name,
-      tags,
-      updated: serverTimestamp(),
-    },
-    { merge: true }
+      merge: true,
+    }
   );
 }
 
-export async function addMultipleShoppingItems(items: IAddShoppingItem[]) {
+export async function addMultipleShoppingItems(names: string[]) {
   const results = await Promise.allSettled(
-    items.map(item => {
-      return setDoc(doc(db, 'items', item.name), {
-        id: item.name,
-        onList: true,
-        checked: false,
-        name: item.name,
-        tags: item.tags.map(tag => tag.toLowerCase().trim()) || [],
-        updated: serverTimestamp(),
-      });
+    names.map(item => {
+      const shoppingItem = new ShoppingItem(item);
+      return setDoc(
+        doc(db, SHOPPING_ITEMS_COLLECTION, item).withConverter(
+          ShoppingItemConverter
+        ),
+        shoppingItem
+      );
     })
   );
   const successes: string[] = [];
@@ -102,9 +79,9 @@ export async function addMultipleShoppingItems(items: IAddShoppingItem[]) {
 
   results.forEach((result, i) => {
     if (result.status === 'fulfilled') {
-      successes.push(items[i].name);
+      successes.push(names[i]);
     } else {
-      failures.push({ value: items[i].name, reason: result.reason });
+      failures.push({ value: names[i], reason: result.reason });
     }
   });
 
@@ -112,7 +89,7 @@ export async function addMultipleShoppingItems(items: IAddShoppingItem[]) {
 }
 
 export async function checkShoppingItem(id: string, checked: boolean) {
-  await updateDoc(doc(db, 'items', id), {
+  await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id), {
     checked,
     updated: serverTimestamp(),
   });
@@ -120,7 +97,7 @@ export async function checkShoppingItem(id: string, checked: boolean) {
 
 export async function deleteShoppingItem(id: string) {
   // await deleteDoc(doc(db, 'items', id));
-  await updateDoc(doc(db, 'items', id), {
+  await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id), {
     onList: false,
     updated: serverTimestamp(),
   });
@@ -128,54 +105,64 @@ export async function deleteShoppingItem(id: string) {
 
 export async function addTagToShoppingItem(id: string, tag: string) {
   tag = tag.toLowerCase().trim();
-  return await updateDoc(doc(db, 'items', id), { tags: arrayUnion(tag) });
+  return await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id), {
+    tags: arrayUnion(tag),
+  });
 }
 
 export async function removeTagFromShoppingItem(itemId: string, tag: string) {
-  return await updateDoc(doc(db, 'items', itemId), { tags: arrayRemove(tag) });
+  console.log('Removing tagfunc', itemId, tag);
+  const s = new Set(['asd', 'qwe', 'zxc']);
+  s.entries();
+  return await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, itemId), {
+    tags: arrayRemove(tag),
+  });
 }
 
-export async function fetchRecipes(): Promise<IRecipe[]> {
+export async function fetchRecipes(): Promise<Recipe[]> {
   const recipes = await getDocs(
-    query(collection(db, 'recipes'), orderBy('updated', 'desc'))
+    query(collection(db, RECIPE_COLLECTION), orderBy('updated', 'desc'))
   );
   return Promise.all(
     recipes.docs.map(async doc => {
       const recipe = doc.data();
       let objectURL: string | undefined = undefined;
       if (recipe.imageUrl !== '') {
-        console.log('Fetching image for recipe', doc.data().imageUrl);
+        console.log('Fetching image for recipe', recipe.imageUrl);
         try {
           const storage = getStorage();
-          const storageRef = ref(storage, doc.data().imageUrl);
+          const storageRef = ref(storage, recipe.imageUrl);
           const imageBlob = await getBlob(storageRef);
           objectURL = URL.createObjectURL(imageBlob);
         } catch (error: any) {
           if (error.code === 'storage/object-not-found') {
-            console.warn('Image not found in storage for recipe:', doc.id);
-            objectURL = 'https://placehold.co/1280x960';
+            console.warn('Image not found in storage for recipe:', recipe.id);
+            objectURL = PLACEHOLDER_IMAGE_URL;
           } else {
             throw error; // rethrow if it's a different error
           }
         }
       }
-      return {
-        ...recipe,
-        recipeName: recipe.id,
-        imageUrl: objectURL ?? '',
-      } as IRecipe;
+      return new Recipe(
+        recipe.name,
+        recipe.recipePreparation,
+        recipe.ingredients,
+        objectURL
+      );
     })
   );
 }
 
 export async function fetchRecipe(
   recipe_query: string
-): Promise<IRecipe | undefined> {
-  const recipeDoc = await getDoc(doc(db, 'recipes', recipe_query));
+): Promise<Recipe | undefined> {
+  const recipeDoc = await getDoc(
+    doc(db, RECIPE_COLLECTION, recipe_query).withConverter(RecipeConverter)
+  );
   if (!recipeDoc.exists()) return undefined;
 
   const recipe = recipeDoc.data();
-  let objectURL: string = 'https://placehold.co/1280x960';
+  let objectURL: string = PLACEHOLDER_IMAGE_URL;
 
   console.log('Fetching recipe', recipe_query);
   console.log('Recipe data:', recipe);
@@ -189,38 +176,41 @@ export async function fetchRecipe(
       objectURL = URL.createObjectURL(imageBlob);
     } catch (error: any) {
       if (error.code === 'storage/object-not-found') {
-        console.warn('Image not found in storage for recipe:', recipe_query);
-        objectURL = 'https://placehold.co/1280x960'; // or set to a placeholder URL if you prefer
+        console.warn(
+          `Image ${recipe.imageUrl} not found in storage for recipe ${recipe_query}`
+        );
+        objectURL = PLACEHOLDER_IMAGE_URL; // or set to a placeholder URL if you prefer
       } else {
         throw error; // rethrow if it's a different error
       }
     }
   }
-  return {
-    ...recipe,
-    recipeName: recipe.id,
-    imageUrl: objectURL,
-  } as IRecipe;
+  return new Recipe(
+    recipe.name,
+    recipe.recipePreparation,
+    recipe.ingredients,
+    objectURL
+  );
 }
 
 export async function addRecipe(recipe: IAddRecipeForm) {
   console.log('Adding recipe', recipe);
-  let imageUrl: string = recipe.recipeName;
+  let imageUrl: string = COLLECTION_PREFIX + recipe.name;
 
   if (!recipe.file || !('size' in recipe.file) || recipe.file.size === 0) {
     console.error('No file provided for recipe image upload');
     imageUrl = '';
   } else {
     const storage = getStorage();
-    const storageRef = ref(storage, recipe.recipeName);
+    const storageRef = ref(storage, COLLECTION_PREFIX + recipe.name);
     uploadBytes(storageRef, recipe.file).then(snapshot => {
       console.log('Uploaded a blob or file!');
     });
   }
 
-  await setDoc(doc(db, 'recipes', recipe.recipeName), {
-    id: recipe.recipeName,
-    name: recipe.recipeName,
+  await setDoc(doc(db, RECIPE_COLLECTION, recipe.name), {
+    id: recipe.name,
+    name: recipe.name,
     ingredients: [...recipe.ingredients],
     recipePreparation: recipe.recipePreparation,
     imageUrl,
@@ -228,20 +218,21 @@ export async function addRecipe(recipe: IAddRecipeForm) {
   });
 }
 
-export async function updateRecipe(recipe: IUpdateRecipeForm) {
-  await updateDoc(doc(db, 'recipes', recipe.recipeName), {
-    id: recipe.recipeName,
-    name: recipe.recipeName,
-    ingredients: [...recipe.ingredients],
+export async function updateRecipe(recipe: Recipe) {
+  await updateDoc(doc(db, RECIPE_COLLECTION, recipe.name), {
+    id: recipe.name,
+    name: recipe.name,
+    ingredients: [...recipe.ingredients.map(ingredient => ingredient.trim())],
     recipePreparation: recipe.recipePreparation,
-    imageUrl: recipe.recipeName,
+    imageUrl: COLLECTION_PREFIX + recipe.name,
     updated: serverTimestamp(),
   });
 }
 
 export async function deleteRecipe(id: string) {
   console.log('deleting recipe', id);
-  await deleteDoc(doc(db, 'recipes', id));
+  await deleteDoc(doc(db, RECIPE_COLLECTION, id));
+  // TODO : delete image from storage
 }
 
 export async function updateRecipeImage(
@@ -249,7 +240,7 @@ export async function updateRecipeImage(
   file: Blob | Uint8Array | ArrayBuffer
 ) {
   const storage = getStorage();
-  const storageRef = ref(storage, recipe_name);
+  const storageRef = ref(storage, COLLECTION_PREFIX + recipe_name);
 
   uploadBytes(storageRef, file).then(snapshot => {
     console.log('Uploaded a blob or file!');
@@ -259,13 +250,13 @@ export async function updateRecipeImage(
 export async function fetchSuggestions(
   input: string,
   onlyOnList: boolean = false
-): Promise<IShoppingListItem[]> {
+): Promise<string[]> {
   if (!input.trim()) {
     console.log('No input provided for suggestions');
     return [];
   }
   const base = query(
-    collection(db, 'items'),
+    collection(db, SHOPPING_ITEMS_COLLECTION),
     orderBy('name'),
     startAt(input),
     endAt(`${input}\uf8ff`)
@@ -275,12 +266,8 @@ export async function fetchSuggestions(
 
   const querySnapshot = await getDocs(q);
   const res = querySnapshot.docs.map(doc => ({
-    id: doc.id,
     ...doc.data(),
-  })) as IShoppingListItem[];
+  })) as ShoppingItem[];
 
-  return res.map(item => ({
-    ...item,
-    name: item.name.charAt(0).toUpperCase() + item.name.slice(1).trim(),
-  }));
+  return res.map(item => item.name);
 }

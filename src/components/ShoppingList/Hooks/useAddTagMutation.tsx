@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IShoppingListItem } from '../../../domain/api';
 import { addTagToShoppingItem } from '../../../domain/firestoreApi';
+import { ShoppingItem } from '../../../domain/shoppingItem';
 
 export const useAddTagMutation = () => {
   const queryClient = useQueryClient();
@@ -12,22 +12,19 @@ export const useAddTagMutation = () => {
       // Cancel any outgoing queries for 'shoppingItems' to avoid overwriting optimistic updates
       await queryClient.cancelQueries({ queryKey: ['shoppingItems'] });
       // Snapshot the previous state
-      const previousItems = queryClient.getQueryData<IShoppingListItem[]>([
+      const previousItems = queryClient.getQueryData<ShoppingItem[]>([
         'shoppingItems',
       ]);
 
       // Optimistically update the cache
-      queryClient.setQueryData<IShoppingListItem[] | undefined>(
+      queryClient.setQueryData<ShoppingItem[] | undefined>(
         ['shoppingItems'],
         oldItems => {
           if (!oldItems) return oldItems;
 
           return oldItems.map(item => {
-            if (item.id === itemId) {
-              return {
-                ...item,
-                tags: [...item.tags, tag.toLowerCase()], // Add the new tag optimistically
-              };
+            if (item.name_lowercase === itemId.toLowerCase()) {
+              item.addTag(tag);
             }
             return item;
           });

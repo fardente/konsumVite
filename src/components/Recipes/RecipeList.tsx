@@ -1,8 +1,8 @@
 import React from 'react';
+import { IoAddOutline, IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import { useFetchRecipes } from './Hooks/useFetchRecipes';
 import RecipeListItem from './RecipeListItem';
-import { IoAddOutline, IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
 
 export default function RecipeList() {
   const { data, isError, error, isLoading } = useFetchRecipes();
@@ -12,8 +12,7 @@ export default function RecipeList() {
 
   if (!data || isLoading) return <div>Loading...</div>;
   const filteredRecipes = data.filter(
-    recipe =>
-      recipe.recipeName.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1
+    recipe => recipe.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1
   );
 
   return (
@@ -58,7 +57,7 @@ export default function RecipeList() {
 
       <div className="columns is-multiline">
         {filteredRecipes.map(recipe => (
-          <RecipeListItem key={recipe.id} {...recipe} />
+          <RecipeListItem key={recipe.name} {...recipe} />
         ))}
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IShoppingListItem } from '../../../domain/api';
 import { removeTagFromShoppingItem } from '../../../domain/firestoreApi';
+import { ShoppingItem } from '../../../domain/shoppingItem';
 
 export const useRemoveTagMutation = () => {
   const queryClient = useQueryClient();
@@ -16,30 +16,25 @@ export const useRemoveTagMutation = () => {
     }) => {
       // Cancel any outgoing queries for 'shoppingItems' to avoid overwriting optimistic updates
       await queryClient.cancelQueries({ queryKey: ['shoppingItems'] });
-
       // Snapshot the previous state
-      const previousItems = queryClient.getQueryData<IShoppingListItem[]>([
+      const previousItems = queryClient.getQueryData<ShoppingItem[]>([
         'shoppingItems',
       ]);
 
       // Optimistically update the cache
-      queryClient.setQueryData<IShoppingListItem[] | undefined>(
+      queryClient.setQueryData<ShoppingItem[] | undefined>(
         ['shoppingItems'],
         oldItems => {
           if (!oldItems) return oldItems;
 
           return oldItems.map(item => {
-            if (item.id === itemId) {
-              return {
-                ...item,
-                tags: item.tags.filter(tag => tag !== tagToRemove),
-              };
+            if (item.name_lowercase === itemId.toLowerCase()) {
+              item.removeTag(tagToRemove);
             }
             return item;
           });
         }
       );
-
       // Return the previous state to rollback in case of an error
       return { previousItems };
     },

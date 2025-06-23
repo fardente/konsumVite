@@ -1,22 +1,20 @@
 import { Link } from 'react-router-dom';
-import { IRecipe } from '../../domain/api';
+import { PLACEHOLDER_IMAGE_URL } from '../../domain/firestoreApi';
+import { Recipe } from '../../domain/recipe';
 
-export default function RecipeListItem({
-  id,
-  recipeName,
-  recipePreparation,
-  imageUrl,
-}: IRecipe) {
+export default function RecipeListItem(recipe: Recipe) {
+  const id = encodeURIComponent(recipe.name);
+  const link = '/recipes/' + id;
   return (
     <div className="column is-3">
       <div className="card">
         <div className="card-image">
           <figure className="image">
-            <Link to={'/recipes/' + id}>
+            <Link to={link}>
               {' '}
               <img
-                src={imageUrl || 'https://placehold.co/1280x960'}
-                alt={recipeName || 'Placeholder image'}
+                src={recipe.imageUrl || PLACEHOLDER_IMAGE_URL}
+                alt={recipe.name || 'Placeholder image'}
               />
             </Link>{' '}
           </figure>
@@ -28,13 +26,13 @@ export default function RecipeListItem({
             <div className="media-content">
               <p className="title is-4">
                 {' '}
-                <Link to={'/recipes/' + id}>{recipeName}</Link>
+                <Link to={link}>{recipe.name}</Link>
               </p>
               {/* <p className="subtitle is-6">@johnsmith</p> */}
             </div>
           </div>
           <div className="content">
-            {recipePreparation.slice(0, 75)}...
+            {recipe.recipePreparation.slice(0, 75)}...
             <br />
             {/* <time dateTime="2016-1-1">11:09 PM - 1 Jan 2016</time> */}
           </div>

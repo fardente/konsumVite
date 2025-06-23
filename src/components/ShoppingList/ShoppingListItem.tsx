@@ -1,20 +1,20 @@
 import useModal from '../useModal';
 
-import { IShoppingListItem } from '../../domain/api';
-import { useCheckItemMutation } from './Hooks/useCheckItemMutation';
-import { useDeleteItemMutation } from './Hooks/useDeleteItemMutation';
-import ShoppingItemDetailsModalView from './ShoppingItemDetailsModal';
 import {
   IoCheckmarkDoneOutline,
   IoCheckmarkOutline,
   IoTrashOutline,
 } from 'react-icons/io5';
+import { ShoppingItem } from '../../domain/shoppingItem';
+import { useCheckItemMutation } from './Hooks/useCheckItemMutation';
+import { useDeleteItemMutation } from './Hooks/useDeleteItemMutation';
+import ShoppingItemDetailsModalView from './ShoppingItemDetailsModal';
 
 export default function ShoppingListItem({
   item,
   availableTags,
 }: {
-  item: IShoppingListItem;
+  item: ShoppingItem;
   availableTags: string[];
 }) {
   const { toggleModal: toggleItemDetailsModal, RenderModal: ItemDetailsModal } =
@@ -34,7 +34,7 @@ export default function ShoppingListItem({
       <div className="column is-flex-grow-0 shopping-item-button-div">
         <button
           className="button is-outlined is-danger is-light"
-          onClick={() => deleteItem(item.id)}
+          onClick={() => deleteItem(item.name)}
           data-testid={`deleteShoppingItemButton-${item.name}`}
         >
           {' '}
@@ -51,7 +51,7 @@ export default function ShoppingListItem({
           {item.name}
         </span>
         <div className="tags">
-          {item.tags.map((tag: string, index: number) => {
+          {item.getTags().map((tag: string, index: number) => {
             return (
               <span key={`${tag}${index}`} className="tag is-warning">
                 {tag}
@@ -65,14 +65,16 @@ export default function ShoppingListItem({
           className={`button ${
             checked ? 'is-success' : 'is-outlined is-success is-light'
           }`}
-          onClick={() => checkItem({ itemId: item.id, checked: !item.checked })}
+          onClick={() =>
+            checkItem({ itemId: item.name, checked: !item.checked })
+          }
         >
           <span className="icon is-small">
             {checked ? <IoCheckmarkDoneOutline /> : <IoCheckmarkOutline />}
           </span>
         </button>
       </div>
-      <ItemDetailsModal key={item.id}>
+      <ItemDetailsModal key={item.name}>
         <ShoppingItemDetailsModalView
           item={item}
           availableTags={availableTags}
