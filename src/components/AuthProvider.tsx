@@ -44,7 +44,12 @@ export default function AuthProvider({
         user ? (
           children
         ) : (
-          <LoginForm handleLogin={handleLogin} setError={setError} />
+          <div
+            className="is-flex is-justify-content-center is-align-items-center"
+            style={{ height: '100vh' }}
+          >
+            <LoginForm handleLogin={handleLogin} setError={setError} />
+          </div>
         )
       ) : (
         'Loading...'
