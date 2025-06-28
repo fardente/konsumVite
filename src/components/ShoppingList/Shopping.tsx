@@ -15,6 +15,8 @@ export default function Shopping() {
 
   const [filterTags, setFilterTags] = React.useState<string[]>([]);
   const [currentInputValue, setCurrentInputValue] = React.useState('');
+  const [areSuggestionsVisible, setAreSuggestionsVisible] =
+    React.useState(false);
 
   const [filterItems] = useFilter(setFilterTags);
 
@@ -56,7 +58,13 @@ export default function Shopping() {
       </div>
 
       <div className="flex mb-4">
-        di
+        {!areSuggestionsVisible && (
+          <button className="button btnFilter" onClick={toggleFilterModal}>
+            Filter
+          </button>
+        )}
+      </div>
+      <div className="flex mb-4">
         <FilterModal>
           <FilterView
             setFilter={setFilterTags}
@@ -65,12 +73,10 @@ export default function Shopping() {
             tagsInUse={tagsInUse}
           />
         </FilterModal>
-        <button className="button btnFilter" onClick={toggleFilterModal}>
-          Filter
-        </button>
         <ShoppingListInputForm
           currentInputValue={currentInputValue}
           setCurrentInputValue={setCurrentInputValue}
+          setSuggestionsVisible={setAreSuggestionsVisible}
         />
       </div>
     </div>

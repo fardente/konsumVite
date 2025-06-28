@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
 import { useAddItemMutation } from './Hooks/useAddItemMutation';
 import { useSuggestionsQuery } from './Hooks/useFetchSuggestions';
@@ -6,9 +6,11 @@ import { useSuggestionsQuery } from './Hooks/useFetchSuggestions';
 export default function ShoppingListInputForm({
   currentInputValue,
   setCurrentInputValue,
+  setSuggestionsVisible,
 }: {
   currentInputValue: string;
   setCurrentInputValue: React.Dispatch<React.SetStateAction<string>>;
+  setSuggestionsVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { mutate: submitItem } = useAddItemMutation();
 
@@ -18,6 +20,10 @@ export default function ShoppingListInputForm({
     isFetching,
     isError,
   } = useSuggestionsQuery(currentInputValue, true);
+
+  useEffect(() => {
+    setSuggestionsVisible(!!(suggestions && suggestions.length > 0));
+  }, [suggestions, setSuggestionsVisible]);
 
   function checkKey(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key == 'Enter') {
@@ -43,7 +49,7 @@ export default function ShoppingListInputForm({
                   submitItem(suggestion);
                   setCurrentInputValue('');
                 }}
-                className="button is-light"
+                className="button is-light is-capitalized is-fullwidth"
               >
                 {suggestion}
               </div>
