@@ -16,18 +16,8 @@ export default function ShoppingItemDetailsModalView({
   const { mutate: addTag } = useAddTagMutation();
   const { mutate: removeTag } = useRemoveTagMutation();
 
-  const fixedTags = [
-    'baumarkt',
-    'conny',
-    'edeka',
-    'biocompany',
-    'dm',
-    'budni',
-    'rossmann',
-  ];
-  availableTags = availableTags
-    .filter(tag => !fixedTags.includes(tag))
-    .concat(fixedTags);
+  const defaultTags = ['rewe', 'biocompany', 'rossmann', 'dm', 'baumarkt'];
+  availableTags = Array.from(new Set([...availableTags, ...defaultTags]));
   const unusedTags = availableTags.filter(tag => !item.tags.includes(tag));
 
   function checkKey(event: React.KeyboardEvent) {

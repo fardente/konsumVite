@@ -42,12 +42,12 @@ export const useRemoveTagMutation = () => {
       console.error('Error adding tag:', err);
 
       // Rollback to the previous state
-      // if (context?.previousItems) {
-      //   queryClient.setQueryData(['shoppingItems'], context.previousItems);
-      // }
+      if (context?.previousItems) {
+        queryClient.setQueryData(['shoppingItems'], context.previousItems);
+      }
     },
     onSuccess: () => {
-      // queryClient.invalidateQueries(['shoppingItems']);
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
     },
   });
 };

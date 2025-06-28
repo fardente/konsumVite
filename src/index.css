@@ -140,6 +140,7 @@ body {
 
 .shopping-items {
   overflow-y: scroll;
+  height: 69vh;
   max-height: 69vh;
 }
 
@@ -180,11 +181,11 @@ body {
 /*   justify-content: center; */
 /* } */
 
-.btnFilter {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
+/* .btnFilter {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+} */
 
 .button.is-text {
   font-size: 1em;

@@ -26,7 +26,6 @@ const SHOPPING_ITEMS_COLLECTION = COLLECTION_PREFIX + 'items';
 export const PLACEHOLDER_IMAGE_URL = 'https://placehold.co/1280x960';
 
 export async function fetchShoppingItems(): Promise<ShoppingItem[]> {
-  console.log('Fetching shopping items');
   try {
     const items = await getDocs(
       query(
@@ -38,9 +37,7 @@ export async function fetchShoppingItems(): Promise<ShoppingItem[]> {
         where('onList', '==', true)
       )
     );
-    console.log('Fetched shopping items:', items.docs);
     const res = items.docs.map(doc => doc.data());
-    console.log('Shopping items data:', res);
     return res as ShoppingItem[];
   } catch (error) {
     console.error('Error fetching shopping items:', error);
@@ -49,10 +46,9 @@ export async function fetchShoppingItems(): Promise<ShoppingItem[]> {
 }
 
 export async function addShoppingItem(name: string) {
-  console.log('Adding shopping item', name);
   const shoppingItem = new ShoppingItem(name);
   await setDoc(
-    doc(db, SHOPPING_ITEMS_COLLECTION, name).withConverter(
+    doc(db, SHOPPING_ITEMS_COLLECTION, name.trim().toLowerCase()).withConverter(
       ShoppingItemConverter
     ),
     shoppingItem,
@@ -62,15 +58,19 @@ export async function addShoppingItem(name: string) {
   );
 }
 
-export async function addMultipleShoppingItems(names: string[]) {
+export async function addMultipleShoppingItems(items: ShoppingItem[]) {
   const results = await Promise.allSettled(
-    names.map(item => {
-      const shoppingItem = new ShoppingItem(item);
+    items.map(shoppingItem => {
       return setDoc(
-        doc(db, SHOPPING_ITEMS_COLLECTION, item).withConverter(
-          ShoppingItemConverter
-        ),
-        shoppingItem
+        doc(
+          db,
+          SHOPPING_ITEMS_COLLECTION,
+          shoppingItem.name_lowercase
+        ).withConverter(ShoppingItemConverter),
+        shoppingItem,
+        {
+          merge: true,
+        }
       );
     })
   );
@@ -79,9 +79,9 @@ export async function addMultipleShoppingItems(names: string[]) {
 
   results.forEach((result, i) => {
     if (result.status === 'fulfilled') {
-      successes.push(names[i]);
+      successes.push(items[i].name);
     } else {
-      failures.push({ value: names[i], reason: result.reason });
+      failures.push({ value: items[i].name, reason: result.reason });
     }
   });
 
@@ -89,7 +89,7 @@ export async function addMultipleShoppingItems(names: string[]) {
 }
 
 export async function checkShoppingItem(id: string, checked: boolean) {
-  await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id), {
+  await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id.trim().toLowerCase()), {
     checked,
     updated: serverTimestamp(),
   });
@@ -97,7 +97,7 @@ export async function checkShoppingItem(id: string, checked: boolean) {
 
 export async function deleteShoppingItem(id: string) {
   // await deleteDoc(doc(db, 'items', id));
-  await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id), {
+  await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id.trim().toLowerCase()), {
     onList: false,
     updated: serverTimestamp(),
   });
@@ -105,18 +105,21 @@ export async function deleteShoppingItem(id: string) {
 
 export async function addTagToShoppingItem(id: string, tag: string) {
   tag = tag.toLowerCase().trim();
-  return await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, id), {
-    tags: arrayUnion(tag),
-  });
+  return await updateDoc(
+    doc(db, SHOPPING_ITEMS_COLLECTION, id.trim().toLowerCase()),
+    {
+      tags: arrayUnion(tag),
+    }
+  );
 }
 
 export async function removeTagFromShoppingItem(itemId: string, tag: string) {
-  console.log('Removing tagfunc', itemId, tag);
-  const s = new Set(['asd', 'qwe', 'zxc']);
-  s.entries();
-  return await updateDoc(doc(db, SHOPPING_ITEMS_COLLECTION, itemId), {
-    tags: arrayRemove(tag),
-  });
+  return await updateDoc(
+    doc(db, SHOPPING_ITEMS_COLLECTION, itemId.trim().toLowerCase()),
+    {
+      tags: arrayRemove(tag),
+    }
+  );
 }
 
 export async function fetchRecipes(): Promise<Recipe[]> {
@@ -128,7 +131,6 @@ export async function fetchRecipes(): Promise<Recipe[]> {
       const recipe = doc.data();
       let objectURL: string | undefined = undefined;
       if (recipe.imageUrl !== '') {
-        console.log('Fetching image for recipe', recipe.imageUrl);
         try {
           const storage = getStorage();
           const storageRef = ref(storage, recipe.imageUrl);
@@ -164,15 +166,11 @@ export async function fetchRecipe(
   const recipe = recipeDoc.data();
   let objectURL: string = PLACEHOLDER_IMAGE_URL;
 
-  console.log('Fetching recipe', recipe_query);
-  console.log('Recipe data:', recipe);
-
   if (recipe.imageUrl) {
     try {
       const storage = getStorage();
       const storageRef = ref(storage, recipe.imageUrl);
       const imageBlob = await getBlob(storageRef);
-      console.log('Fetching image for recipe', recipe_query);
       objectURL = URL.createObjectURL(imageBlob);
     } catch (error: any) {
       if (error.code === 'storage/object-not-found') {
@@ -194,7 +192,6 @@ export async function fetchRecipe(
 }
 
 export async function addRecipe(recipe: IAddRecipeForm) {
-  console.log('Adding recipe', recipe);
   let imageUrl: string = COLLECTION_PREFIX + recipe.name;
 
   if (!recipe.file || !('size' in recipe.file) || recipe.file.size === 0) {
@@ -230,7 +227,6 @@ export async function updateRecipe(recipe: Recipe) {
 }
 
 export async function deleteRecipe(id: string) {
-  console.log('deleting recipe', id);
   await deleteDoc(doc(db, RECIPE_COLLECTION, id));
   // TODO : delete image from storage
 }
@@ -245,6 +241,10 @@ export async function updateRecipeImage(
   uploadBytes(storageRef, file).then(snapshot => {
     console.log('Uploaded a blob or file!');
   });
+  await updateDoc(doc(db, RECIPE_COLLECTION, recipe_name), {
+    imageUrl: COLLECTION_PREFIX + recipe_name,
+    updated: serverTimestamp(),
+  });
 }
 
 export async function fetchSuggestions(
@@ -252,12 +252,13 @@ export async function fetchSuggestions(
   onlyOnList: boolean = false
 ): Promise<string[]> {
   if (!input.trim()) {
-    console.log('No input provided for suggestions');
     return [];
   }
+  input = input.toLowerCase().trim();
+
   const base = query(
     collection(db, SHOPPING_ITEMS_COLLECTION),
-    orderBy('name'),
+    orderBy('name_lowercase'),
     startAt(input),
     endAt(`${input}\uf8ff`)
   );

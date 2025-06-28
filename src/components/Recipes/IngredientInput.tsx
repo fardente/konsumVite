@@ -32,7 +32,6 @@ export default function IngredientInput({
 
   return (
     <div className="field">
-      asdas
       {newIngredients.map((ingredientName: string, index: number) => (
         <div className="field has-addons" key={index.toString()}>
           <div className="control">

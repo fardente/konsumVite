@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addMultipleShoppingItems } from '../../../domain/firestoreApi';
+import { ShoppingItem } from '../../../domain/shoppingItem';
 
 type TAddIngredientsToShoppingList = {
   ingredients: string[];
@@ -10,10 +11,9 @@ export const useAddIngredientsToShoppingListMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (ingredients: TAddIngredientsToShoppingList) => {
-      const items = ingredients.ingredients.map(item => ({
-        name: item,
-        tags: [ingredients.recipeName],
-      }));
+      const items = ingredients.ingredients.map(
+        item => new ShoppingItem(item, [ingredients.recipeName])
+      );
       return addMultipleShoppingItems(items);
     },
     onSuccess: (_, data) => {

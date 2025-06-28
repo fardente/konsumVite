@@ -24,11 +24,11 @@ export default function SuggestionBox({
             <div
               onClick={event => {
                 event.preventDefault();
-                onAcceptSuggestion(suggestion.name);
+                onAcceptSuggestion(suggestion);
               }}
-              className="button is-light"
+              className="button is-light is-capitalized is-fullwidth"
             >
-              {suggestion.name}
+              {suggestion}
             </div>
           </div>
         ))}

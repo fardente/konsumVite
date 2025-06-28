@@ -35,16 +35,6 @@ export const useAddTagMutation = () => {
       return { previousItems };
     },
     onError: (err, variables, context) => {
-      console.error(
-        'Error adding tag:',
-        'err',
-        err,
-        'vars',
-        variables,
-        'con',
-        context
-      );
-
       // Rollback to the previous state
       if (context?.previousItems) {
         queryClient.setQueryData(['shoppingItems'], context.previousItems);

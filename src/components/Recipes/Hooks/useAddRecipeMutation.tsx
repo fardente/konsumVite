@@ -11,7 +11,6 @@ export default function useAddRecipeMutation() {
     },
     onError: (error: any) => {
       console.error('Error adding recipe:', error);
-      // Optionally, you can show a notification or alert to the user
     },
   });
 }

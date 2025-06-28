@@ -19,7 +19,7 @@ export default function Nav() {
   return (
     <div className="navbar has-shadow">
       <div className="navbar-brand">
-        <div className="navbar-item">
+        <div className="navbar-item has-text-weight-bold is-size-4">
           <span className="icon mx-3 has-background-warning-light has-text-danger-dark">
             <IoPizzaSharp className="is-large" />
           </span>
@@ -51,13 +51,13 @@ export default function Nav() {
           >
             Recipes
           </Link>
-          <Link
+          {/* <Link
             onClick={() => onToggleActive()}
             className="navbar-item has-text-centered"
             to="/ingredients"
           >
             Ingredients
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>

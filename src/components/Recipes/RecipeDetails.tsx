@@ -59,7 +59,6 @@ export default function RecipeDetails() {
       console.log('file not jpeg');
       return event.target;
     }
-    console.log('submitting image', event.target.files[0]);
     updateRecipeImage({
       recipe_name: name,
       file: event.target.files[0],
