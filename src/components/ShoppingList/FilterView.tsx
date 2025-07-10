@@ -22,11 +22,10 @@ export default function FilterView({
               <div className="tags"></div>
               <label
                 htmlFor={tag}
-                className="tag is-warning is-large is-rounded"
+                className="tag is-warning is-large is-rounded is-capitalized"
               >
                 {tag}
                 <span className="tag is-warning">
-                  {' '}
                   <input
                     type="checkbox"
                     id={tag}
@@ -35,8 +34,8 @@ export default function FilterView({
                     onChange={() =>
                       tempFilters.includes(tag)
                         ? setTempFilters(oldFilter =>
-                          oldFilter.filter(x => x !== tag)
-                        )
+                            oldFilter.filter(x => x !== tag)
+                          )
                         : setTempFilters(old => [...old, tag])
                     }
                   />
@@ -46,7 +45,7 @@ export default function FilterView({
           );
         })}
       </div>
-      <div>
+      <div className="buttons is-centered">
         <button
           className="button"
           onClick={() => {
