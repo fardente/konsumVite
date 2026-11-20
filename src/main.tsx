@@ -1,14 +1,20 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App';
 import ErrorPage from './components/ErrorPage';
-import RecipeDetails from './components/Recipes/RecipeDetails';
-import RecipeForm from './components/Recipes/RecipeForm';
-import RecipeList from './components/Recipes/RecipeList';
 import ShoppingPage from './components/ShoppingList/ShoppingPage';
 import './index.css';
+
+// Recipe pages are not needed for the landing (shopping list) page, so split
+// them into their own chunks.
+const RecipeList = lazy(() => import('./components/Recipes/RecipeList'));
+const RecipeForm = lazy(() => import('./components/Recipes/RecipeForm'));
+const RecipeDetails = lazy(() => import('./components/Recipes/RecipeDetails'));
+const withSuspense = (el: React.ReactNode) => (
+  <Suspense fallback="Loading...">{el}</Suspense>
+);
 
 const router = createBrowserRouter([
   {
@@ -22,15 +28,15 @@ const router = createBrowserRouter([
       },
       {
         path: '/recipes',
-        element: <RecipeList />,
+        element: withSuspense(<RecipeList />),
       },
       {
         path: '/recipes/add',
-        element: <RecipeForm />,
+        element: withSuspense(<RecipeForm />),
       },
       {
         path: '/recipes/:id',
-        element: <RecipeDetails />,
+        element: withSuspense(<RecipeDetails />),
       },
     ],
   },

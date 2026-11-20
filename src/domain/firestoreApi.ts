@@ -7,6 +7,7 @@ import {
   endAt,
   getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -15,29 +16,46 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { getBlob, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { COLLECTION_PREFIX, db } from '../firebase';
+import { COLLECTION_PREFIX, db, loadStorage } from '../firebase';
 import { IAddRecipeForm } from './interfaces';
 import { Recipe, RecipeConverter } from './recipe';
 import { ShoppingItem, ShoppingItemConverter } from './shoppingItem';
-import { compressImage, generateThumbnail } from '../imagecompression';
+
+// Image compression is only needed when uploading recipe images; load it on
+// demand instead of in the initial bundle.
+const loadImageCompression = () => import('../imagecompression');
 
 const RECIPE_COLLECTION = COLLECTION_PREFIX + 'recipes';
 const SHOPPING_ITEMS_COLLECTION = COLLECTION_PREFIX + 'items';
 export const PLACEHOLDER_IMAGE_URL = 'https://placehold.co/1280x960';
 
+const shoppingItemsQuery = () =>
+  query(
+    collection(db, SHOPPING_ITEMS_COLLECTION).withConverter(
+      ShoppingItemConverter
+    ),
+    orderBy('checked'),
+    orderBy('updated', 'desc'),
+    where('onList', '==', true)
+  );
+
+/**
+ * Live subscription to the shopping list. Fires first with the locally cached
+ * items (fast app start), then again with server data and on every change.
+ */
+export function subscribeShoppingItems(
+  onItems: (items: ShoppingItem[]) => void
+): () => void {
+  return onSnapshot(
+    shoppingItemsQuery(),
+    snapshot => onItems(snapshot.docs.map(doc => doc.data())),
+    error => console.error('Shopping items listener failed:', error)
+  );
+}
+
 export async function fetchShoppingItems(): Promise<ShoppingItem[]> {
   try {
-    const items = await getDocs(
-      query(
-        collection(db, SHOPPING_ITEMS_COLLECTION).withConverter(
-          ShoppingItemConverter
-        ),
-        orderBy('checked'),
-        orderBy('updated', 'desc'),
-        where('onList', '==', true)
-      )
-    );
+    const items = await getDocs(shoppingItemsQuery());
     const res = items.docs.map(doc => doc.data());
     return res as ShoppingItem[];
   } catch (error) {
@@ -134,7 +152,7 @@ export async function fetchRecipes(): Promise<Recipe[]> {
       let imageUrl = recipe.imageThumbnailUrl || recipe.imageUrl;
       if (imageUrl !== '') {
         try {
-          const storage = getStorage();
+          const { storage, ref, getBlob } = await loadStorage();
           const storageRef = ref(storage, imageUrl);
           const imageBlob = await getBlob(storageRef);
           objectURL = URL.createObjectURL(imageBlob);
@@ -176,7 +194,7 @@ export async function fetchRecipe(
 
   if (recipe.imageUrl) {
     try {
-      const storage = getStorage();
+      const { storage, ref, getBlob } = await loadStorage();
       const storageRef = ref(storage, recipe.imageUrl);
       const imageBlob = await getBlob(storageRef);
       objectURL = URL.createObjectURL(imageBlob);
@@ -208,7 +226,8 @@ export async function addRecipe(recipe: IAddRecipeForm) {
     imageUrl = '';
     imageThumbnailUrl = '';
   } else {
-    const storage = getStorage();
+    const [{ storage, ref, uploadBytes }, { compressImage, generateThumbnail }] =
+      await Promise.all([loadStorage(), loadImageCompression()]);
     const storageRef = ref(storage, COLLECTION_PREFIX + recipe.name);
     const compressedImage = await compressImage(recipe.file);
     const file = compressedImage ? compressedImage : recipe.file;
@@ -250,7 +269,8 @@ export async function deleteRecipe(id: string) {
 }
 
 export async function updateRecipeImage(recipe_name: string, file: File) {
-  const storage = getStorage();
+  const [{ storage, ref, uploadBytes }, { compressImage, generateThumbnail }] =
+    await Promise.all([loadStorage(), loadImageCompression()]);
   const storageRef = ref(storage, COLLECTION_PREFIX + recipe_name);
   const compressedImage = await compressImage(file);
   file = compressedImage ? compressedImage : file;

@@ -1,7 +1,16 @@
 import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth } from 'firebase/auth';
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
-import { connectStorageEmulator, getStorage } from 'firebase/storage';
+import {
+  browserLocalPersistence,
+  connectAuthEmulator,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from 'firebase/auth';
+import {
+  connectFirestoreEmulator,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -35,19 +44,49 @@ if (missingVars.length > 0) {
 }
 
 export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// initializeAuth instead of getAuth: getAuth also bundles and initialises the
+// popup/redirect resolver (loads an extra iframe from authDomain), which this
+// app doesn't need since it only uses email/password sign-in.
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+});
+// Persistent (IndexedDB) cache: on app start, listeners get the last known data
+// immediately instead of waiting for the network round trip to Firestore.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
 
 // Connect to emulators if in development mode
 const isUsingEmulator = import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true';
+
+/**
+ * Firebase Storage is only needed for recipe images, so it is loaded on demand
+ * instead of being part of the initial bundle.
+ */
+export async function loadStorage() {
+  const { connectStorageEmulator, getStorage, getBlob, ref, uploadBytes } =
+    await import('firebase/storage');
+  const storage = getStorage(app);
+  if (isUsingEmulator && import.meta.env.DEV) {
+    const storageHost =
+      import.meta.env.VITE_FIREBASE_EMULATOR_HOST || 'localhost';
+    const storagePort =
+      import.meta.env.VITE_FIREBASE_EMULATOR_STORAGE_PORT || 9199;
+    try {
+      connectStorageEmulator(storage, storageHost, parseInt(storagePort));
+    } catch (error) {
+      // Already connected to storage emulator
+    }
+  }
+  return { storage, getBlob, ref, uploadBytes };
+}
 
 if (isUsingEmulator && import.meta.env.DEV) {
   const authPort = import.meta.env.VITE_FIREBASE_EMULATOR_AUTH_PORT || 9099;
   const firestorePort =
     import.meta.env.VITE_FIREBASE_EMULATOR_FIRESTORE_PORT || 8080;
-  const storagePort =
-    import.meta.env.VITE_FIREBASE_EMULATOR_STORAGE_PORT || 9199;
 
   // Use custom host if provided (for mobile testing), otherwise localhost
   const emulatorHost =
@@ -72,15 +111,8 @@ if (isUsingEmulator && import.meta.env.DEV) {
     // Already connected to firestore emulator
   }
 
-  try {
-    connectStorageEmulator(storage, emulatorHost, parseInt(storagePort));
-  } catch (error) {
-    // Already connected to storage emulator
-  }
-
   console.log(`🌐 Using emulator host: ${emulatorHost}`);
   console.log('🔥 Firebase emulators connected');
   console.log(`📧 Auth: http://${emulatorHost}:${authPort}`);
   console.log(`🗄️  Firestore: http://${emulatorHost}:${firestorePort}`);
-  console.log(`📁 Storage: http://${emulatorHost}:${storagePort}`);
 }

@@ -16,7 +16,12 @@ export default defineConfig({
       external: ['crypto', 'stream', 'buffer'],
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react-dom/client',
+            'react-router-dom',
+          ],
           'vendor-query': ['@tanstack/react-query'],
           'vendor-firebase': [
             'firebase/app',
@@ -68,7 +73,9 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true,
       template: 'sunburst',
-      filename: 'dist/stats.html',
+      // Keep the report out of dist/, otherwise it gets deployed and
+      // precached by the service worker (~220 kB on first visit).
+      filename: 'stats.html',
       open: false,
     }),
   ],
