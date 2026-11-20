@@ -34,7 +34,7 @@ export default function AuthProvider({
   }, []);
 
   return (
-    <div>
+    <div className="outer">
       <div>
         {error && (
           <span style={{ color: 'red' }}>Login error! {error.message}</span>

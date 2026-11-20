@@ -9,17 +9,20 @@ export class Recipe {
   recipePreparation: string;
   ingredients: string[];
   imageUrl: string;
+  imageThumbnailUrl: string;
 
   constructor(
     name: string,
     recipePreparation: string = '',
     ingredients: string[] = [],
-    imageUrl: string = ''
+    imageUrl: string = '',
+    imageThumbnailUrl: string = ''
   ) {
     this.name = name.trim();
     this.recipePreparation = recipePreparation.trim();
     this.ingredients = ingredients.map(ingredient => ingredient.trim());
     this.imageUrl = imageUrl;
+    this.imageThumbnailUrl = imageThumbnailUrl;
   }
 
   toString() {
@@ -34,6 +37,7 @@ export const RecipeConverter = {
       recipePreparation: recipe.recipePreparation,
       ingredients: recipe.ingredients,
       imageUrl: recipe.imageUrl,
+      imageThumbnailUrl: recipe.imageThumbnailUrl,
       updated: serverTimestamp(),
     };
   },
@@ -46,7 +50,8 @@ export const RecipeConverter = {
       data.name,
       data.recipePreparation,
       data.ingredients,
-      data.imageUrl
+      data.imageUrl,
+      data.imageThumbnailUrl
     );
   },
 };

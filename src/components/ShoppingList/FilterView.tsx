@@ -1,19 +1,23 @@
 import React, { Fragment } from 'react';
+import useModal from '../useModal';
+import useFilteredItems from './Hooks/useTags';
 
 export default function FilterView({
-  setFilter,
-  filter,
   toggleModal,
+  filterTags,
   tagsInUse,
+  setFilterTags,
 }: {
-  setFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  filter: string[];
   toggleModal: () => void;
+  filterTags: string[];
   tagsInUse: string[];
+  setFilterTags: (tags: string[]) => void;
 }) {
-  const [tempFilters, setTempFilters] = React.useState<string[]>(filter);
+  console.log('FilterView rendered');
+  const [tempFilters, setTempFilters] = React.useState<string[]>(filterTags);
+
   return (
-    <Fragment>
+    <div>
       <h4 className="title is-4">Filter List by Tags </h4>
       <div className="field is-grouped is-grouped-multiline">
         {tagsInUse.map(tag => {
@@ -49,7 +53,7 @@ export default function FilterView({
         <button
           className="button"
           onClick={() => {
-            setFilter(tempFilters);
+            setFilterTags(tempFilters);
             toggleModal();
           }}
           autoFocus
@@ -59,13 +63,13 @@ export default function FilterView({
         <button
           className="button"
           onClick={() => {
-            setFilter([]);
+            setFilterTags([]);
             toggleModal();
           }}
         >
           Clear Filters
         </button>
       </div>
-    </Fragment>
+    </div>
   );
 }

@@ -7,7 +7,7 @@ import ErrorPage from './components/ErrorPage';
 import RecipeDetails from './components/Recipes/RecipeDetails';
 import RecipeForm from './components/Recipes/RecipeForm';
 import RecipeList from './components/Recipes/RecipeList';
-import Shopping from './components/ShoppingList/Shopping';
+import ShoppingPage from './components/ShoppingList/ShoppingPage';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -18,7 +18,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Shopping />,
+        element: <ShoppingPage />,
       },
       {
         path: '/recipes',

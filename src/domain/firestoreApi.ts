@@ -20,6 +20,7 @@ import { COLLECTION_PREFIX, db } from '../firebase';
 import { IAddRecipeForm } from './interfaces';
 import { Recipe, RecipeConverter } from './recipe';
 import { ShoppingItem, ShoppingItemConverter } from './shoppingItem';
+import { compressImage, generateThumbnail } from '../imagecompression';
 
 const RECIPE_COLLECTION = COLLECTION_PREFIX + 'recipes';
 const SHOPPING_ITEMS_COLLECTION = COLLECTION_PREFIX + 'items';
@@ -130,15 +131,21 @@ export async function fetchRecipes(): Promise<Recipe[]> {
     recipes.docs.map(async doc => {
       const recipe = doc.data();
       let objectURL: string | undefined = undefined;
-      if (recipe.imageUrl !== '') {
+      let imageUrl = recipe.imageThumbnailUrl || recipe.imageUrl;
+      if (imageUrl !== '') {
         try {
           const storage = getStorage();
-          const storageRef = ref(storage, recipe.imageUrl);
+          const storageRef = ref(storage, imageUrl);
           const imageBlob = await getBlob(storageRef);
           objectURL = URL.createObjectURL(imageBlob);
         } catch (error: any) {
-          if (error.code === 'storage/object-not-found') {
-            console.warn('Image not found in storage for recipe:', recipe.id);
+          if (error.code) {
+            console.warn(
+              'Image not found in storage for recipe:',
+              recipe.id,
+              recipe.imageUrl,
+              error
+            );
             objectURL = PLACEHOLDER_IMAGE_URL;
           } else {
             throw error; // rethrow if it's a different error
@@ -149,6 +156,7 @@ export async function fetchRecipes(): Promise<Recipe[]> {
         recipe.name,
         recipe.recipePreparation,
         recipe.ingredients,
+        '',
         objectURL
       );
     })
@@ -193,14 +201,24 @@ export async function fetchRecipe(
 
 export async function addRecipe(recipe: IAddRecipeForm) {
   let imageUrl: string = COLLECTION_PREFIX + recipe.name;
+  let imageThumbnailUrl = imageUrl + '-thumbnail';
 
   if (!recipe.file || !('size' in recipe.file) || recipe.file.size === 0) {
     console.error('No file provided for recipe image upload');
     imageUrl = '';
+    imageThumbnailUrl = '';
   } else {
     const storage = getStorage();
     const storageRef = ref(storage, COLLECTION_PREFIX + recipe.name);
-    uploadBytes(storageRef, recipe.file).then(snapshot => {
+    const compressedImage = await compressImage(recipe.file);
+    const file = compressedImage ? compressedImage : recipe.file;
+    uploadBytes(storageRef, file).then(snapshot => {
+      console.log('Uploaded a blob or file!');
+    });
+    const thumbnailRef = ref(storage, imageThumbnailUrl);
+    let thumbnailFile = await generateThumbnail(file);
+    thumbnailFile = thumbnailFile ? thumbnailFile : file;
+    uploadBytes(thumbnailRef, thumbnailFile).then(snapshot => {
       console.log('Uploaded a blob or file!');
     });
   }
@@ -211,6 +229,7 @@ export async function addRecipe(recipe: IAddRecipeForm) {
     ingredients: [...recipe.ingredients],
     recipePreparation: recipe.recipePreparation,
     imageUrl,
+    imageThumbnailUrl,
     updated: serverTimestamp(),
   });
 }
@@ -221,7 +240,6 @@ export async function updateRecipe(recipe: Recipe) {
     name: recipe.name,
     ingredients: [...recipe.ingredients.map(ingredient => ingredient.trim())],
     recipePreparation: recipe.recipePreparation,
-    imageUrl: COLLECTION_PREFIX + recipe.name,
     updated: serverTimestamp(),
   });
 }
@@ -231,18 +249,25 @@ export async function deleteRecipe(id: string) {
   // TODO : delete image from storage
 }
 
-export async function updateRecipeImage(
-  recipe_name: string,
-  file: Blob | Uint8Array | ArrayBuffer
-) {
+export async function updateRecipeImage(recipe_name: string, file: File) {
   const storage = getStorage();
   const storageRef = ref(storage, COLLECTION_PREFIX + recipe_name);
+  const compressedImage = await compressImage(file);
+  file = compressedImage ? compressedImage : file;
 
   uploadBytes(storageRef, file).then(snapshot => {
     console.log('Uploaded a blob or file!');
   });
+  let thumbnailFile = await generateThumbnail(file);
+  thumbnailFile = thumbnailFile ? thumbnailFile : file;
+  let imageThumbnailUrl = COLLECTION_PREFIX + recipe_name + '-thumbnail';
+  const thumbnailRef = ref(storage, imageThumbnailUrl);
+  uploadBytes(thumbnailRef, thumbnailFile).then(snapshot => {
+    console.log('Uploaded a blob or file!');
+  });
   await updateDoc(doc(db, RECIPE_COLLECTION, recipe_name), {
     imageUrl: COLLECTION_PREFIX + recipe_name,
+    imageThumbnailUrl,
     updated: serverTimestamp(),
   });
 }

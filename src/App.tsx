@@ -8,7 +8,7 @@ function App(): React.ReactElement {
   return (
     <AuthProvider>
       <Nav></Nav>
-      <section className="section p-5 ">
+      <section className="section p-5 outer">
         <Outlet />
       </section>
     </AuthProvider>

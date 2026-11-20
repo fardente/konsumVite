@@ -27,6 +27,7 @@ export default function ShoppingListItem({
 
   return (
     <div
+      data-testid={`shoppingListItem-${item.name}`}
       className={`columns is-mobile shopping-item-wrapper ${
         checked ? 'checked' : ''
       }`}
@@ -62,6 +63,7 @@ export default function ShoppingListItem({
       </div>
       <div className="column is-flex-grow-0 shopping-item-button-div">
         <button
+          data-testid={`checkShoppingItemButton-${item.name}`}
           className={`button ${
             checked ? 'is-success' : 'is-outlined is-success is-light'
           }`}

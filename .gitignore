@@ -29,3 +29,7 @@ dist-ssr
 /emulatordata
 /firebase-export*
 .env*
+# Local data exports (contain service-account keys)
+/exported/
+# Bundle report from rollup-plugin-visualizer
+/stats.html

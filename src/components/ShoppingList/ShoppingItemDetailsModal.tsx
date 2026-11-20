@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { IoAddCircle } from 'react-icons/io5';
 import { ShoppingItem } from '../../domain/shoppingItem';
 import { useAddTagMutation } from './Hooks/useAddTagMutation';

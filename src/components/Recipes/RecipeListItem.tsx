@@ -13,7 +13,7 @@ export default function RecipeListItem(recipe: Recipe) {
             <Link to={link}>
               {' '}
               <img
-                src={recipe.imageUrl || PLACEHOLDER_IMAGE_URL}
+                src={recipe.imageThumbnailUrl || PLACEHOLDER_IMAGE_URL}
                 alt={recipe.name || 'Placeholder image'}
               />
             </Link>{' '}
