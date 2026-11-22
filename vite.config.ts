@@ -2,9 +2,32 @@ import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 import react from '@vitejs/plugin-react-swc';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
+
+// Short commit hash of the build, with "-dirty" if there were uncommitted
+// changes, so a deployed build can always be traced back to its source.
+function gitRevision(): string {
+  try {
+    const hash = execSync('git rev-parse --short HEAD').toString().trim();
+    const dirty = execSync('git status --porcelain --untracked-files=no')
+      .toString()
+      .trim();
+    return dirty ? `${hash}-dirty` : hash;
+  } catch {
+    return 'unknown';
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+    __GIT_REVISION__: JSON.stringify(gitRevision()),
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   test: {
     environment: 'jsdom',
     globals: true,
